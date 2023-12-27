@@ -29,6 +29,8 @@ web extension's Native Messaging feature. Also, the UI will highlight commands
 which are meant to run on the current URL, will provide GUI elements for common
 situations (such as pagination and dropdowns), and will support hotkeys.
 
+![image](https://github.com/sebastiancarlos/beachpatrol/assets/88276600/751aec3f-284d-4563-ac0f-09bfa52034e2)
+
 ### What can you automate with Beachpatrol? The sky is the limit:
 - Check your email.
 - Login to your bank account.
