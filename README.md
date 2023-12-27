@@ -25,7 +25,7 @@ API to move to an existing tab, open a new one, or use a headless tab instead.
 If you don't want to go back and forth to the CLI to automate your browser, you can
 install the `beachpatrol-browser-extension`. Its UI allows you to select a
 command and call it with arguments. It will call `beachmsg` itself through the
-web extension's Native Messaging feature. Also, the UI will highlight commands
+browser extension's Native Messaging feature. Also, the UI will highlight commands
 which are meant to run on the current URL, will provide GUI elements for common
 situations (such as pagination and dropdowns), and will support hotkeys:
 
@@ -137,7 +137,7 @@ However, Firefox support is to be added soon.
 ### Why JavaScript/Node.js instead of Python?
 
 While Python is a popular language for web automation, we decided for JavaScript 
-to enable code sharing with the web extension.
+to enable code sharing with the browser extension.
 
 ### Writing Playwright scripts for every task takes too long.
 
@@ -147,6 +147,12 @@ Puppeteer scripts, which use the same API as Playwright.
 Also, given Playwright's popularity, you can describe your task in natural language
 to an AI and ask for it as a Playwright script. With some practice, this should 
 get you halfway to a working script.
+
+### Why use an external automation tool (Playwright) instead of a browser extension?
+
+While Beachpatrol allows to control the browser from both the OS and from a browser
+extension, our priority was the OS. Therefore, something like Playwright was
+the natural choice.
 
 ## Project Status
 
