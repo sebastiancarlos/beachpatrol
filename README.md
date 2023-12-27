@@ -27,7 +27,7 @@ install the `beachpatrol-browser-extension`. Its UI allows you to select a
 command and call it with arguments. It will call `beachmsg` itself through the
 web extension's Native Messaging feature. Also, the UI will highlight commands
 which are meant to run on the current URL, will provide GUI elements for common
-situations (such as pagination and dropdowns), and will support hotkeys.
+situations (such as pagination and dropdowns), and will support hotkeys:
 
 ![image](https://github.com/sebastiancarlos/beachpatrol/assets/88276600/751aec3f-284d-4563-ac0f-09bfa52034e2)
 
