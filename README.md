@@ -46,7 +46,7 @@ which are meant to run on the current URL.
 
 ## Installation
 
-- Clone the repo: `git clone XXX`
+- Clone the repo: `git clone https://github.com/sebastiancarlos/beachpatrol`
 - Move to the folder: `cd beachpatrol`
 - Run `npm install` to install dependencies.
 - Run `make` to install symlinks to the executables (in `/usr/local/bin` by
