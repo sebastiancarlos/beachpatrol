@@ -1,4 +1,4 @@
-# Beachpatrol - Browser's End-user Automation CLI Hub. Potentialize All Tasks Regarding Online Life.
+# Beachpatrol: Browser's End-user Automation CLI Hub. Potentialize All Tasks Regarding Online Life.
 
 <p align="center">
   <img src="https://github.com/sebastiancarlos/beachpatrol/assets/88276600/49fbdf4f-eeec-42f8-a0aa-dd1c1c6c1617">
