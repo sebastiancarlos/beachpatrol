@@ -66,7 +66,7 @@ which are meant to run on the current URL.
       in-browser's profile features to switch profiles. However, this might be
       fixed in the future.
 - Run `beachmsg smoke-test` to run the pre-installed test command, which
-  performs the classic Selenium smoke test.
+  performs the classic [Selenium smoke test](https://www.selenium.dev/documentation/webdriver/getting_started/first_script/).
 - If it reads "XXX", it worked correctly.
 - Now create your own automation scripts!
 
