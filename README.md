@@ -75,7 +75,7 @@ which are meant to run on the current URL.
 First and foremost, `beachpatrol` contains a customized Playwright script to
 launch your browser. It passes arguments which closely recreate the experience
 of using a non-automated browser. For example, it does not set a fixed viewport
-(witch is, otherwise, a sensible default for Playwright's main use-case of
+(which is, otherwise, a sensible default for Playwright's main use-case of
 automated testing.)
 
 Beachpatrol also installs and loads the packages `playwright-extra` and
