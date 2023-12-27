@@ -4,7 +4,7 @@
   <img src="https://github.com/sebastiancarlos/beachpatrol/assets/88276600/49fbdf4f-eeec-42f8-a0aa-dd1c1c6c1617">
 </p>
 
-_Fssential software should be automatable. Web browsers aren't. Let's change that._
+_Essential software should be automatable. Web browsers aren't. Let's change that._
 
 ## Introduction
 
