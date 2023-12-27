@@ -23,7 +23,7 @@ script by default on the currently focused tab, but you can use the Beachpatrol
 API to move to an existing tab, open a new one, or use a headless tab instead.
 
 If you don't want to go back to the CLI to automate your browser, you can
-install the `beachpatrol-browser-extension`. It's UI allows you to select a
+install the `beachpatrol-browser-extension`. Its UI allows you to select a
 command and call it with arguments. It will call `beachmsg` itself through the
 web extension's Native Messaging feature. Also, the UI will highlight commands
 which are meant to run on the current URL.
@@ -75,7 +75,7 @@ which are meant to run on the current URL.
 First and foremost, `beachpatrol` contains a customized Playwright script to
 launch your browser. It passes arguments which closely recreate the experience
 of using a non-automated browser. For example, it does not set a fixed viewport
-(wich is, otherwise, a sensible default for Playwright's main use-case of
+(witch is, otherwise, a sensible default for Playwright's main use-case of
 automated testing.)
 
 Beachpatrol also installs and loads the packages `playwright-extra` and
