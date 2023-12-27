@@ -35,7 +35,7 @@ which are meant to run on the current URL.
 - Dump the text from the current tab into a file.
 - Fill an online form.
 - Check for messages in your social media or work communication platform.
-- Integrate with your OS: Add browser task to your Bash/Python OS scripts.
+- Integrate with your OS: Add browser task to your Bash/Python scripts.
 - **All of this right there on your everyday browser!**
 
 ## Requirements
