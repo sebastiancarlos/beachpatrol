@@ -154,6 +154,8 @@ While Beachpatrol allows to control the browser from both the OS and from a brow
 extension, our priority was the OS. Therefore, something like Playwright was
 the natural choice.
 
+Furthermore, [Manifest v3 removed the ability to execute third-party strings of code](https://developer.chrome.com/docs/extensions/develop/migrate/improve-security). The alternative is to embed the code into the extension, but that would requires re-bundling the extensions after every change. It is more likely that Selenium and related tools will continue to work for the forseable future given the business demand for traditional browser testing.
+
 ## Project Status
 
 This project is in **alpha**. 
