@@ -26,7 +26,7 @@ command and call it with arguments. It will call `beachmsg` itself through the
 web extension's Native Messaging feature. Also, the UI will highlight commands
 which are meant to run on the current URL.
 
-What can you do with Beachpatrol? The sky is the limit:
+### What can you automate with Beachpatrol? The sky is the limit:
 - Check your email.
 - Login to your bank account.
 - Download a file from a website.
@@ -34,6 +34,7 @@ What can you do with Beachpatrol? The sky is the limit:
 - Fill an online form.
 - Check for messages in your social media or work communication platform.
 - Integrate with your OS: Add browser task to your Bash/Python OS scripts.
+- **All of this right there on your everyday browser!**
 
 ## Requirements
 
