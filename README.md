@@ -92,28 +92,6 @@ conditions.
 After the browser is launched, it listens on a UNIX socket created on
 `tmp/beachpatrol.sock` for messages by `beachmsg`.
 
-## F.A.Q.
-
-### Why Playwright instead of Selenium? Why Chromium instead of Firefox?
-
-Initial browser launch benchmarks suggested us to prioritize the current selection:
-
-| Browser                  | Launch time |
-|--------------------------|-------------|
-| Selenium Node Chrome     |       1.8s  |
-| Playwright Chrome        |       1.8s  |
-| Selenium Java Chrome     |       4s    |
-| Playwright Firefox       |       4.3s  |
-| Selenium Java Firefox    |       6s    |
-| Selenium Node Firefox    |       9s    |
-
-However, Firefox support is to be added soon.
-
-### Why JavaScript/Node.js instead of Python?
-
-While Python is a popular language for web automation, we decided for JavaScript 
-to enable code sharing with the web extension.
-
 ## Usage
 
 ```bash
@@ -135,6 +113,28 @@ Usage: beachmsg <command> [<arg>...]
 Send commands to beachpatrol. The provided command must exist
 in the commands directory of beachpatrol.
 ```
+
+## F.A.Q.
+
+### Why Playwright instead of Selenium? Why Chromium instead of Firefox?
+
+Initial browser launch benchmarks suggested us to prioritize the current selection:
+
+| Browser                  | Launch time |
+|--------------------------|-------------|
+| Selenium Node Chrome     |       1.8s  |
+| Playwright Chrome        |       1.8s  |
+| Selenium Java Chrome     |       4s    |
+| Playwright Firefox       |       4.3s  |
+| Selenium Java Firefox    |       6s    |
+| Selenium Node Firefox    |       9s    |
+
+However, Firefox support is to be added soon.
+
+### Why JavaScript/Node.js instead of Python?
+
+While Python is a popular language for web automation, we decided for JavaScript 
+to enable code sharing with the web extension.
 
 ## Project Status
 
