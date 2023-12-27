@@ -98,7 +98,7 @@ After the browser is launched, it listens on a UNIX socket created on
 Usage: beachpatrol [--profile <profile_name>] [--incognito] [--headless]
 
 Launches a Chromium browser with the specified profile.
-Opens a socket at to listen for commands. Commands can be sent with
+Opens a socket to listen for commands. Commands can be sent with
 the 'beachmsg' command.
 
 Options:
