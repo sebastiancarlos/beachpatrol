@@ -22,7 +22,7 @@ if (process.argv.includes('--help') || process.argv.includes('-h')) {
   console.log('Usage: beachpatrol [--profile <profile_name>] [--incognito] [--headless]');
   console.log();
   console.log('Launches a Chromium browser with the specified profile.');
-  console.log('Opens a socket at to listen for commands. Commands can be sent with');
+  console.log('Opens a socket at listen for commands. Commands can be sent with');
   console.log('the \'beachmsg\' command.');
   console.log();
   console.log('Options:');
