@@ -22,7 +22,7 @@ folder. Then, run `beachmsg <script-name> [<argument>...]`. It will run your
 script by default on the currently focused tab, but you can use the Playwright
 API to move to an existing tab, open a new one, or use a headless tab instead.
 
-If you don't want to go back to the CLI to automate your browser, you can
+If you don't want to go back and forth to the CLI to automate your browser, you can
 install the `beachpatrol-browser-extension`. Its UI allows you to select a
 command and call it with arguments. It will call `beachmsg` itself through the
 web extension's Native Messaging feature. Also, the UI will highlight commands
