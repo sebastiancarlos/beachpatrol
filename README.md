@@ -156,11 +156,11 @@ the natural choice.
 
 ## Project Status
 
-This project is in alpha. 
+This project is in **alpha**. 
 - The API is subject to change.
 - Currently only Linux is supported. MacOS support to be added soon.
 - Currently only Chromium is supported. Other Chromium-based browsers and
   Firefox support to be added soon.
-- The `beachpatrol-browser-extension` is in early-testing and not publicly
-  released. It is expected to launch in a fully-functional state by the next
+- The `beachpatrol-browser-extension` is in early-testing and **not publicly
+  released.** It is expected to launch in a fully-functional state by the next
   release.
