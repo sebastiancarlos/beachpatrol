@@ -125,8 +125,8 @@ Initial browser launch benchmarks suggested us to prioritize the current selecti
 
 | Browser                  | Launch time |
 |--------------------------|-------------|
+| Playwright Chrome        |       1.7s  |
 | Selenium Node Chrome     |       1.8s  |
-| Playwright Chrome        |       1.8s  |
 | Selenium Java Chrome     |       4s    |
 | Playwright Firefox       |       4.3s  |
 | Selenium Java Firefox    |       6s    |
