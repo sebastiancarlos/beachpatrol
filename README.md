@@ -98,7 +98,25 @@ However, Firefox support is to be added soon.
 
 ## Usage
 
-XXX
+```bash
+Usage: beachpatrol [--profile <profile_name>] [--incognito] [--headless]
+
+Launches a Chromium browser with the specified profile.
+Opens a socket at to listen for commands. Commands can be sent with
+the 'beachmsg' command.
+
+Options:
+  --profile <profile_name>  Use the specified profile. Default: default
+  --incognito               Launch browser in incognito mode
+  --headless                Launch browser in headless mode
+```
+
+```bash
+Usage: beachmsg <command> [<arg>...]
+
+Send commands to beachpatrol. The provided command must exist
+in the commands directory of beachpatrol.
+```
 
 ## Project Status
 
