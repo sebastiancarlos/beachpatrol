@@ -139,6 +139,15 @@ However, Firefox support is to be added soon.
 While Python is a popular language for web automation, we decided for JavaScript 
 to enable code sharing with the web extension.
 
+### Writing Playwright scripts for every task takes too long.
+
+You can use [Chromium DevDool's Recorder tab](https://developer.chrome.com/docs/devtools/recorder/reference) to record actions and export them as
+Puppeteer scripts, which use the same API as Playwright.
+
+Also, given Playwright's popularity, you can describe your task in natural language
+to an AI and ask for it as a Playwright script. With some practice, this should 
+get you halfway to a working script.
+
 ## Project Status
 
 This project is in alpha. 
