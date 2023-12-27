@@ -1,6 +1,6 @@
 # Beachpatrol - Browser's End-user Automation CLI Hub. Potentialize All Tasks Regarding Online Life.
 
-_All essential software should be automatable. Web browsers aren't. Let's change that._
+_Fssential software should be automatable. Web browsers aren't. Let's change that._
 
 Add to image: "Improve your web surfing with Beachpatrol"
 
