@@ -90,7 +90,7 @@ happens. Beachpatrol also encourages users to respect every website's terms and
 conditions.
 
 After the browser is launched, it listens on a UNIX socket created on
-`tmp/beachpatrol.sock` for messages by `beachmsg`.
+`/tmp/beachpatrol.sock` for messages by `beachmsg`.
 
 ## Usage
 
