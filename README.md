@@ -67,7 +67,7 @@ which are meant to run on the current URL.
       fixed in the future.
 - Run `beachmsg smoke-test` to run the pre-installed test command, which
   performs the classic [Selenium smoke test](https://www.selenium.dev/documentation/webdriver/getting_started/first_script/).
-- If it reads "XXX", it worked correctly.
+- If it reads "Form submitted", it worked correctly.
 - Now create your own automation scripts!
 
 ## Technical details 
