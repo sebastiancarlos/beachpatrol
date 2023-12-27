@@ -26,7 +26,8 @@ If you don't want to go back to the CLI to automate your browser, you can
 install the `beachpatrol-browser-extension`. Its UI allows you to select a
 command and call it with arguments. It will call `beachmsg` itself through the
 web extension's Native Messaging feature. Also, the UI will highlight commands
-which are meant to run on the current URL.
+which are meant to run on the current URL, will provide GUI elements for common
+situations (such as pagination and dropdowns), and will support hotkeys.
 
 ### What can you automate with Beachpatrol? The sky is the limit:
 - Check your email.
