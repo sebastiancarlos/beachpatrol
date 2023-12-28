@@ -4,7 +4,7 @@
   <img src="https://github.com/sebastiancarlos/beachpatrol/assets/88276600/49fbdf4f-eeec-42f8-a0aa-dd1c1c6c1617">
 </p>
 
-_Essential software should be automatable. Web browsers aren't. Let's change that._
+_Essential software should be fully automatable. Web browsers aren't. Let's change that._
 
 ## Introduction
 
@@ -119,15 +119,32 @@ in the commands directory of beachpatrol.
 
 ## F.A.Q.
 
-### What’s the point? Isn’t Beachpatrol just a wrapper around a Playwright browser?
+### Isn't the claim that web browsers aren't automatable a bit far-fetched?
+
+When we say that web browsers aren't automatable, we're thinking more along 
+the lines of the depth of automation available with tools like Bash or Vim 
+(where virtually every interaction can be scripted and interwoven into custom
+workflows without much resistance.)
+
+Yes, we acknowledge there are existing ways to automate browser tasks like
+autofill, mouse and keyboard macros, bookmarklets, and of course various tools
+like Playwright.
+
+Beachpatrol aspires to bring a new spin to the state-of-the-art, re-imagining
+automation tools not as a one-time task, but integrated into your daily
+browser. Just as your favorite shell or extendable text editor.
+
+In short, our aim is to take existing automation tools (currently designed for
+testing or scraping) and tweak them for everyday browsing, while also providing
+a UI which is both simple and power-user friendly.
+
+### But what’s the point? Isn’t Beachpatrol just a wrapper around a Playwright browser?
 
 True, But it offers several value-added features:
 
 - **Automation Detection Evasion**: Beachpatrol carefully selects Playwright options and plugins to mirror the activity of a regular browsing, helping to avoid detection mechanisms that websites use to identify and block automated browsers.
 - **Client/Server Architecture**: `beachpatrol` launches a browser and listens on a socket. The separate client `beachmsg` can then be used to transmit Playwright commands to the controlled browser. This separation allows for greater flexibility and integration with other tools and scripts.
 - **Browser Extension**: An accompanying browser extension is designed to also communicate with the socket and send commands. The extension provides a user-friendly graphical interface and contextual tools.
-
-The aim of Beachpatrol is to take existing browser automation tools (currently designed for testing or scraping) and tweak them for everyday browsing, while also providing a UI which is both simple and power-user friendly.
 
 ### Why Playwright instead of Selenium? Why Chromium instead of Firefox?
 
