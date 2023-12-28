@@ -207,3 +207,10 @@ This project is in **alpha**.
 - The `beachpatrol-browser-extension` is in early-testing and **not publicly
   released.** It is expected to launch in a fully-functional state by the next
   release.
+- Contributions welcome!
+
+## License
+MIT
+
+## Contributing
+We welcome contributions of all kinds. If you have a suggestion or fix, please feel free to open an issue or pull request.
