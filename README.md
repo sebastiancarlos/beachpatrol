@@ -65,7 +65,7 @@ situations (such as pagination and dropdowns), and will support hotkeys:
     to all your sites.
   - If you want a different profile, use `beachpatrol --profile
     new-profile-name`
-    - Note: Due to Chromium's limitation, it is not possible to use the
+    - Note: Due to a Chromium's limitation, it is not possible to use the
       in-browser's profile features to switch profiles. However, this might be
       fixed in the future.
 - Run `beachmsg smoke-test` to run the pre-installed test command, which
