@@ -33,7 +33,7 @@ situations (such as pagination and dropdowns), and will support hotkeys:
 
 ### What can you automate with Beachpatrol? The sky is the limit:
 - Check your email.
-- Login to your bank account.
+- Check your bank transactions.
 - Download a file from a website.
 - Dump the text from the current tab into a file.
 - Fill an online form.
