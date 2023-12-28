@@ -127,8 +127,8 @@ the lines of the depth of automation available with tools like Bash, Vim or Emac
 workflows without much resistance.)
 
 Yes, we acknowledge there are existing ways to automate browser tasks like
-autofill, mouse and keyboard macros, bookmarklets, and of course various tools
-like Playwright.
+autofill, mouse and keyboard macros, bookmarklets, extensions, and of course 
+various tools like Playwright.
 
 Beachpatrol aspires to bring a new spin to the state-of-the-art, re-imagining
 automation tools not as a one-time task, but integrated into your daily
