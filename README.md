@@ -155,9 +155,20 @@ While Beachpatrol allows to control the browser from both the OS and from a brow
 extension, our priority was the OS. Therefore, something like Playwright was
 the natural choice.
 
-Furthermore, while controlling the browser from an extensions is possible, [Manifest v3 removed the ability to execute third-party strings of code](https://developer.chrome.com/docs/extensions/develop/migrate/improve-security). The alternative is to embed the code into the extension, but that would requires re-bundling the extensions after every change. Other tricks do exist to make this approach work, and there is some hope for [future Manifest v3 solutions](https://github.com/w3c/webextensions/issues/279). However, this path is certainly tricky.
+Furthermore, while controlling the browser from an extensions is possible, [Manifest v3 removed the ability to execute third-party strings of code](https://developer.chrome.com/docs/extensions/develop/migrate/improve-security). Popular automation extensions like Greasemonkey and Tampermonkey could also be affected by Manifest v3. The alternative is to embed the code into the extension, but that would requires re-bundling the extensions after every change. Other tricks do exist to make this approach work, and there is some hope for [future Manifest v3 solutions](https://github.com/w3c/webextensions/issues/279), but this path is certainly tricky.
 
 It is more likely that Selenium and related tools will continue to work in the foreseeable future given the business demand for traditional browser testing.
+
+### How does Beachpatrol compare to bookmarklets for quick tasks?
+
+Bookmarklets are handy for executing scripts with a click, but they are
+limited to user-triggered actions and may not handle complex workflows, such
+as automation based on specific timing or interaction with operating system features.
+
+Plus, there's a personal preference factor. For those who like to have finer
+control, keeping automation scripts within their file system feels cleaner and
+less bound to a particular browser ecosystem. However, we recognize that
+bookmarklets have their place and can be the preferred choice for many users.
 
 ### Writing Playwright scripts for every task takes too long.
 
