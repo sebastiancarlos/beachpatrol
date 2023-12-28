@@ -166,7 +166,7 @@ the natural choice.
 
 Furthermore, [Manifest v3 removed the ability to execute third-party strings of code](https://developer.chrome.com/docs/extensions/develop/migrate/improve-security). The alternative is to embed the code into the extension, but that would requires re-bundling the extensions after every change. Other tricks do exist to make this approach work, and there is some hope for [future Manifest v3 solutions](https://github.com/w3c/webextensions/issues/279). However, this path is certainly tricky.
 
-It is more likely that Selenium and related tools will continue to work for the forseable future given the business demand for traditional browser testing.
+It is more likely that Selenium and related tools will continue to work in the foreseeable future given the business demand for traditional browser testing.
 
 ## Project Status
 
