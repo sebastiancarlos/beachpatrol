@@ -127,7 +127,7 @@ True, But it offers several value-added features:
 - **Client/Server Architecture**: `beachpatrol` launches a browser and listens on a socket. The separate client `beachmsg` can then be used to transmit Playwright commands to the controlled browser. This separation allows for greater flexibility and integration with other tools and scripts.
 - **Browser Extension**: An accompanying browser extension is designed to also communicate with the socket and send commands. The extension provides a user-friendly graphical interface and contextual tools.
 
-The aim of Beachpatrol is to take existing browser automation tools (currently designed for testing) and tweak them for everyday browsing, while also providing a UI which is both simple and power-user friendly.
+The aim of Beachpatrol is to take existing browser automation tools (currently designed for testing or scraping) and tweak them for everyday browsing, while also providing a UI which is both simple and power-user friendly.
 
 ### Why Playwright instead of Selenium? Why Chromium instead of Firefox?
 
