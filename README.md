@@ -122,7 +122,7 @@ in the commands directory of beachpatrol.
 ### Isn't the claim that web browsers aren't automatable a bit far-fetched?
 
 When we say that web browsers aren't automatable, we're thinking more along 
-the lines of the depth of automation available with tools like Bash or Vim 
+the lines of the depth of automation available with tools like Bash, Vim or Emacs 
 (where virtually every interaction can be scripted and interwoven into custom
 workflows without much resistance.)
 
