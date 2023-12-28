@@ -140,7 +140,7 @@ a UI which is both simple and power-user friendly.
 
 ### But what’s the point? Isn’t Beachpatrol just a wrapper around a Playwright browser?
 
-True, But it offers several value-added features:
+True, but it offers several value-added features:
 
 - **Automation Detection Evasion**: Beachpatrol carefully selects Playwright options and plugins to mirror the activity of a regular browsing, helping to avoid detection mechanisms that websites use to identify and block automated browsers.
 - **Client/Server Architecture**: `beachpatrol` launches a browser and listens on a socket. The separate client `beachmsg` can then be used to transmit Playwright commands to the controlled browser. This separation allows for greater flexibility and integration with other tools and scripts.
