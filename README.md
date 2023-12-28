@@ -119,6 +119,16 @@ in the commands directory of beachpatrol.
 
 ## F.A.Q.
 
+### What’s the point? Isn’t Beachpatrol just a wrapper around a Playwright browser?
+
+True, Beachpatrol is indeed a wrapper around a Playwright-controlled browser, but it offers several value-added features:
+
+- **Automation Detection Evasion**: Beachpatrol carefully selects Playwright options and plugins to mirror the activity of a regular browsing, helping to avoid detection mechanisms that websites use to identify and block automated browsers.
+- **Client/Server Architecture**: `beachpatrol` launches a browser and listens on a socket. The separate client `beachmsg` can then be used to transmit Playwright commands to the controlled browser. This separation allows for greater flexibility and integration with other tools and scripts.
+- **Browser Extension**: An accompanying browser extension is designed to also communicate with the socket and send commands. The extension provides a user-friendly graphical interface and contextual tools.
+
+The aim of Beachpatrol is to take existing browser automation tools (currently designed for testing) and tweak them for everyday browsing, while also providing a UI which is both simple and power-user friendly.
+
 ### Why Playwright instead of Selenium? Why Chromium instead of Firefox?
 
 Initial browser launch benchmarks suggested us to prioritize the current selection:
