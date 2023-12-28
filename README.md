@@ -149,15 +149,6 @@ However, Firefox support is to be added soon.
 While Python is a popular language for web automation, we decided for JavaScript 
 to enable code sharing with the browser extension.
 
-### Writing Playwright scripts for every task takes too long.
-
-You can use [Chromium DevDool's Recorder tab](https://developer.chrome.com/docs/devtools/recorder/reference) to record actions and export them as
-Puppeteer scripts, which use the same API as Playwright.
-
-Also, given Playwright's popularity, you can describe your task in natural language
-to an AI and ask for it as a Playwright script. With some practice, this should 
-get you halfway to a working script.
-
 ### Why use an external automation tool (Playwright) instead of a browser extension?
 
 While Beachpatrol allows to control the browser from both the OS and from a browser
@@ -167,6 +158,15 @@ the natural choice.
 Furthermore, while controlling the browser from an extensions is possible, [Manifest v3 removed the ability to execute third-party strings of code](https://developer.chrome.com/docs/extensions/develop/migrate/improve-security). The alternative is to embed the code into the extension, but that would requires re-bundling the extensions after every change. Other tricks do exist to make this approach work, and there is some hope for [future Manifest v3 solutions](https://github.com/w3c/webextensions/issues/279). However, this path is certainly tricky.
 
 It is more likely that Selenium and related tools will continue to work in the foreseeable future given the business demand for traditional browser testing.
+
+### Writing Playwright scripts for every task takes too long.
+
+You can use [Chromium DevDool's Recorder tab](https://developer.chrome.com/docs/devtools/recorder/reference) to record actions and export them as
+Puppeteer scripts, which use the same API as Playwright.
+
+Also, given Playwright's popularity, you can describe your task in natural language
+to an AI and ask for it as a Playwright script. With some practice, this should 
+get you halfway to a working script.
 
 ## Project Status
 
