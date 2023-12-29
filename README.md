@@ -142,7 +142,7 @@ a UI which is both simple and power-user friendly.
 
 True, but it offers several value-added features:
 
-- **Automation Detection Evasion**: Beachpatrol carefully selects Playwright options and plugins to mirror the activity of a regular browsing, helping to avoid detection mechanisms that websites use to identify and block automated browsers.
+- **Automation Detection Evasion**: Beachpatrol carefully selects Playwright options and plugins to mirror the activity of a regular browser, helping to avoid detection mechanisms that websites use to identify and block automated browsers.
 - **Client/Server Architecture**: `beachpatrol` launches a browser and listens on a socket. The separate client `beachmsg` can then be used to transmit Playwright commands to the controlled browser. This separation allows for greater flexibility and integration with other tools and scripts.
 - **Browser Extension**: An accompanying browser extension is designed to also communicate with the socket and send commands. The extension provides a user-friendly graphical interface and contextual tools.
 
