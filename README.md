@@ -43,7 +43,7 @@ situations (such as pagination and dropdowns), and will support hotkeys:
 
 ## Requirements
 
-- Linux (Wayland or X11)
+- Linux (Wayland or X11) or macOS
 - Node.js and NPM
 - Chromium
 
@@ -200,7 +200,7 @@ get you halfway to a working script.
 
 This project is in **alpha**. 
 - The API is subject to change.
-- Currently only Linux is supported. MacOS support to be added soon.
+- Currently Linux and macOS are supported.
 - Currently only Chromium is supported. Other Chromium-based browsers and
   Firefox support to be added soon.
 - The ability to run a command when a new URL matches a pattern will be added soon.

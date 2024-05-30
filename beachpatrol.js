@@ -7,11 +7,6 @@ import { createServer } from 'net';
 import path from 'path';
 import { URL } from 'url';
 
-// bail is OS is not Linux
-if (process.platform !== 'linux') {
-  throw new Error('BeachPatrol is only supported on Linux.');
-}
-
 const HOME_DIR = process.env.HOME;
 if (!HOME_DIR) {
   throw new Error('HOME environment variable not set.');
