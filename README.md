@@ -10,9 +10,9 @@ _Essential software should be fully automatable. Web browsers aren't. Let's chan
 
 Beachpatrol is a CLI tool to replace and automate your everyday web browser.
 
-Run `beachpatrol` to launch a Chromium browser which can be controlled
+Run `beachpatrol` to launch a Chromium or Firefox browser which can be controlled
 externally through [Playwright](https://playwright.dev/) scripts. You can use it as your daily driver; it works
-like a regular Chromium browser. 
+like a regular browser. 
 
 Use also `beachpatrol --profile <profile-name>` to launch a specific profile,
 or `beachpatrol --incognito`.
@@ -45,7 +45,7 @@ situations (such as pagination and dropdowns), and will support hotkeys:
 
 - Linux (Wayland or X11) or macOS
 - Node.js and NPM
-- Chromium
+- Chromium or Firefox (installed automatically by Puppeteer)
 
 ## Installation
 
@@ -100,7 +100,7 @@ After the browser is launched, it listens on a UNIX socket created on
 ```bash
 Usage: beachpatrol [--profile <profile_name>] [--incognito] [--headless]
 
-Launches a Chromium browser with the specified profile.
+Launches a browser with the specified profile.
 Opens a socket to listen for commands. Commands can be sent with
 the 'beachmsg' command.
 
@@ -146,9 +146,9 @@ True, but it offers several value-added features:
 - **Client/Server Architecture**: `beachpatrol` launches a browser and listens on a socket. The separate client `beachmsg` can then be used to transmit Playwright commands to the controlled browser. This separation allows for greater flexibility and integration with other tools and scripts.
 - **Browser Extension**: An accompanying browser extension is designed to also communicate with the socket and send commands. The extension provides a user-friendly graphical interface and contextual tools.
 
-### Why Playwright instead of Selenium? Why Chromium instead of Firefox?
+### Why Playwright instead of Selenium?
 
-Initial browser launch benchmarks suggested us to prioritize the current selection:
+Initial browser launch benchmarks suggested us to prioritize Playwright.
 
 | Browser                  | Launch time |
 |--------------------------|-------------|
@@ -158,8 +158,6 @@ Initial browser launch benchmarks suggested us to prioritize the current selecti
 | Playwright Firefox       |       4.3s  |
 | Selenium Java Firefox    |       6s    |
 | Selenium Node Firefox    |       9s    |
-
-However, Firefox support is to be added soon.
 
 ### Why JavaScript/Node.js instead of Python?
 
@@ -201,8 +199,7 @@ get you halfway to a working script.
 This project is in **alpha**. 
 - The API is subject to change.
 - Currently Linux and macOS are supported.
-- Currently only Chromium is supported. Other Chromium-based browsers and
-  Firefox support to be added soon.
+- Currently only Chromium and Firefox are supported.
 - The ability to run a command when a new URL matches a pattern will be added soon.
 - The `beachpatrol-browser-extension` is in early-testing and **not publicly
   released.** It is expected to launch in a fully-functional state by the next

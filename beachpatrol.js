@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { chromium } from 'playwright-extra';
+import { chromium, firefox } from 'playwright-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth'
 import fs from 'fs';
 import { createServer } from 'net';
@@ -12,16 +12,20 @@ if (!HOME_DIR) {
   throw new Error('HOME environment variable not set.');
 }
 
+const SUPPORTED_BROWSERS = ['chromium', 'firefox'];
+
 // if --help/-h, print usage
 if (process.argv.includes('--help') || process.argv.includes('-h')) {
   console.log('Usage: beachpatrol [--profile <profile_name>] [--incognito] [--headless]');
   console.log();
-  console.log('Launches a Chromium browser with the specified profile.');
+  console.log('Launches a browser with the specified profile.');
   console.log('Opens a socket at listen for commands. Commands can be sent with');
   console.log('the \'beachmsg\' command.');
   console.log();
   console.log('Options:');
   console.log('  --profile <profile_name>  Use the specified profile. Default: default');
+  console.log('  --browser <browser_name>  Use the specified browser. Default: chromium');
+  console.log(`      Supported browsers: ${SUPPORTED_BROWSERS.join(', ')}`);
   console.log('  --incognito               Launch browser in incognito mode');
   console.log('  --headless                Launch browser in headless mode');
   process.exit(0);
@@ -41,12 +45,25 @@ let headless = false;
 if (process.argv.includes('--headless')) {
   headless = true;
 }
+let browser = 'chromium';
+if (process.argv.includes('--browser')) {
+  const browserIndex = process.argv.indexOf('--browser');
+  browser = process.argv[browserIndex + 1];
+  // bail out if browser is not supported
+  if (!SUPPORTED_BROWSERS.includes(browser)) {
+    console.error(`Error: Unsupported browser ${browser}`);
+    console.error(`Supported browsers: ${SUPPORTED_BROWSERS.join(', ')}`);
+    process.exit(1);
+  }
+}
 
 // prepare profile directory, create if it doesn't exist
-const profileDir = path.join(HOME_DIR, '.config/beachpatrol/profiles', profileName);
+const profileDir = path.join(HOME_DIR, `.config/beachpatrol/profiles/${browser}/${profileName}`);
 if (!fs.existsSync(profileDir)) {
   fs.mkdirSync(profileDir, { recursive: true });
 }
+
+const browserCommand = browser === 'chromium' ? chromium : firefox;
 
 // prepare launch options and hide automation
 const launchOptions = {
@@ -59,21 +76,25 @@ if (process.env.XDG_SESSION_TYPE === 'wayland') {
   // if running on wayland, add the needed chromium wayland flag
   launchOptions.args.push('--ozone-platform-hint=wayland');
 };
-chromium.use(StealthPlugin());
+browserCommand.use(StealthPlugin());
 
 if (incognito) {
-  launchOptions.args.push('--incognito');
+  if (browser === 'chromium') {
+    launchOptions.args.push('--incognito');
+  } else if (browser === 'firefox') {
+    launchOptions.args.push('-private-window');
+  }
 }
 
 // Launch browser with specified profile and args
 let browserContext;
 if (incognito) {
-  const browser = await chromium.launch(launchOptions);
+  const browser = await browserCommand.launch(launchOptions);
   browserContext = await browser.newContext();
   // the 'launch' method does not open a page by default, so we need to open one
   await browserContext.newPage();
 } else {
-  browserContext = await chromium.launchPersistentContext(profileDir, launchOptions);
+  browserContext = await browserCommand.launchPersistentContext(profileDir, launchOptions);
 }
 
 // prepare UNIX socket to listen for commands
