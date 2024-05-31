@@ -208,6 +208,9 @@ This project is in **alpha**.
   release.
 - Contributions welcome!
 
+## You might also like
+- [TabFS](https://github.com/osnr/TabFS)
+
 ## License
 MIT
 
