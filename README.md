@@ -106,6 +106,8 @@ the 'beachmsg' command.
 
 Options:
   --profile <profile_name>  Use the specified profile. Default: default
+  --browser <browser_name>  Use the specified browser. Default: chromium
+      Supported browsers: chromium, firefox
   --incognito               Launch browser in incognito mode
   --headless                Launch browser in headless mode
 ```
