@@ -210,6 +210,7 @@ This project is in **alpha**.
 
 ## You might also like
 - [TabFS](https://github.com/osnr/TabFS)
+- [Violentmonkey](https://github.com/violentmonkey/violentmonkey)
 
 ## License
 MIT
