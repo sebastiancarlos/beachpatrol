@@ -168,11 +168,13 @@ to enable code sharing with the browser extension.
 
 ### Why use an external automation tool (Playwright) instead of a browser extension?
 
-While Beachpatrol allows to control the browser from both the OS and from a browser
-extension, our priority was the OS. Therefore, something like Playwright was
+Similar functionality can indeed be achieved with Userscript managers, such as the [Violentmonkey](https://github.com/violentmonkey/violentmonkey) browser extension.
+
+But, while Beachpatrol allows us to control the browser from both the OS and a browser
+extension, our priority is the OS. Also, there are [limitations](https://www.sitepoint.com/community/t/tampermonkey-access-local-files-and-commands/299771) on how much you can interact with the OS from a browser extension. Therefore, something like Playwright was
 the natural choice.
 
-Furthermore, while controlling the browser from an extensions is possible, [Manifest v3 removed the ability to execute third-party strings of code](https://developer.chrome.com/docs/extensions/develop/migrate/improve-security). Popular automation extensions like Greasemonkey and Tampermonkey could also be affected by Manifest v3. The alternative is to embed the code into the extension, but that would requires re-bundling the extensions after every change. Other tricks do exist to make this approach work, and there is some hope for [future Manifest v3 solutions](https://github.com/w3c/webextensions/issues/279), but this path is certainly tricky.
+Furthermore, while controlling the browser from an extension is possible, [Manifest v3 removed the ability to execute third-party strings of code](https://developer.chrome.com/docs/extensions/develop/migrate/improve-security). Popular automation extensions like Greasemonkey and Tampermonkey could also be affected by Manifest v3. The alternative is to embed the code into the extension, but that would require re-bundling the extensions after every change. Other tricks do exist to make this approach work, and there is some hope for [future Manifest v3 solutions](https://github.com/w3c/webextensions/issues/279), but this path is certainly tricky.
 
 It is more likely that Selenium and related tools will continue to work in the foreseeable future given the business demand for traditional browser testing.
 
