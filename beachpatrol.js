@@ -123,7 +123,10 @@ const server = createServer((socket) => {
     } else {
       // Import and run the command
       try {
-        const {default: command} = await import(path.resolve(commandFilePath));
+        // import with a timestamp to avoid caching
+        const modulePath = path.resolve(commandFilePath);
+        const {default: command} = await import(`${modulePath}?t=${Date.now()}`);
+
         await command(browserContext, ...args);
         const SUCCESS_MESSAGE = 'Command executed successfully.';
         console.log(SUCCESS_MESSAGE);
