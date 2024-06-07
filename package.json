@@ -8,7 +8,7 @@
     "beachmsg": "./beachmsg.js"
   },
   "scripts": {
-    "postinstall": "playwright install chromium"
+    "postinstall": "node ./.internal-scripts/postinstall.js"
   },
   "keywords": [],
   "author": "sebastiancarlos",
