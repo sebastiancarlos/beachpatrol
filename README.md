@@ -10,6 +10,8 @@ _Essential software should be fully automatable. Web browsers aren't. Let's chan
 
 Beachpatrol is a CLI tool to replace and automate your everyday web browser.
 
+https://github.com/sebastiancarlos/beachpatrol/assets/88276600/bc3bf9e8-28e2-48ef-a1f4-8754b4918916
+
 Run `beachpatrol` to launch a Chromium or Firefox browser which can be controlled
 externally through [Playwright](https://playwright.dev/) scripts. You can use it as your daily driver; it works
 like a regular browser. 
