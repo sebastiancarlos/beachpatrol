@@ -12,12 +12,6 @@ exec_prefix := $(prefix)
 # Executables
 bindir := $(exec_prefix)/bin
 
-# Set space as the recipe prefix, instead of tab
-# Note: It also works with multiple spaces before the recipe text
-empty :=
-space := $(empty) $(empty)
-.RECIPEPREFIX := $(space) $(space)
-
 # Enable delete on error, which is disabled by default for legacy reasons
 .DELETE_ON_ERROR:
 
@@ -36,25 +30,25 @@ all: install
 
 .PHONY: install
 install: installdirs
-  @echo -e $(blue)Installing ...$(reset)
-  @$(LN_S) $(srcdir)/beachpatrol.js $(DESTDIR)$(bindir)/beachpatrol
-  @echo -e '   'Installing $(green)beachpatrol$(reset) in $(green)$(DESTDIR)$(bindir)/$(reset)$(bold)beachpatrol$(reset)
-  @$(LN_S) $(srcdir)/beachmsg.js $(DESTDIR)$(bindir)/beachmsg
-  @echo -e '   'Installing $(green)beachmsg$(reset) in $(green)$(DESTDIR)$(bindir)/$(reset)$(bold)beachmsg$(reset)
-  @echo -e $(blue)Installing$(reset) $(green)DONE$(reset)
+	@echo -e $(blue)Installing ...$(reset)
+	@$(LN_S) $(srcdir)/beachpatrol.js $(DESTDIR)$(bindir)/beachpatrol
+	@echo -e '   'Installing $(green)beachpatrol$(reset) in $(green)$(DESTDIR)$(bindir)/$(reset)$(bold)beachpatrol$(reset)
+	@$(LN_S) $(srcdir)/beachmsg.js $(DESTDIR)$(bindir)/beachmsg
+	@echo -e '   'Installing $(green)beachmsg$(reset) in $(green)$(DESTDIR)$(bindir)/$(reset)$(bold)beachmsg$(reset)
+	@echo -e $(blue)Installing$(reset) $(green)DONE$(reset)
 
 .PHONY: installdirs
 installdirs:
-  @echo -e $(blue)Creating directories ...$(reset)
-  @mkdir -p $(DESTDIR)$(bindir)
-  @echo -e '   'Creating directory $(green)$(DESTDIR)$(bindir)$(reset)
-  @echo -e $(blue)Creating directories$(reset) $(green)DONE$(reset)\\n
+	@echo -e $(blue)Creating directories ...$(reset)
+	@mkdir -p $(DESTDIR)$(bindir)
+	@echo -e '   'Creating directory $(green)$(DESTDIR)$(bindir)$(reset)
+	@echo -e $(blue)Creating directories$(reset) $(green)DONE$(reset)\\n
 
 .PHONY: uninstall
 uninstall:
-  @echo -e $(blue)Uninstalling ...$(reset)
-  @rm -f $(DESTDIR)$(bindir)/beachpatrol
-  @echo -e '   'Deleting file $(green)beachpatrol$(reset) in $(green)$(DESTDIR)$(bindir)/$(reset)$(bold)beachpatrol$(reset)
-  @rm -f $(DESTDIR)$(bindir)/beachmsg
-  @echo -e '   'Deleting file $(green)beachmsg$(reset) in $(green)$(DESTDIR)$(bindir)/$(reset)$(bold)beachmsg$(reset)
-  @echo -e $(green)Uninstalling DONE$(reset)
+	@echo -e $(blue)Uninstalling ...$(reset)
+	@rm -f $(DESTDIR)$(bindir)/beachpatrol
+	@echo -e '   'Deleting file $(green)beachpatrol$(reset) in $(green)$(DESTDIR)$(bindir)/$(reset)$(bold)beachpatrol$(reset)
+	@rm -f $(DESTDIR)$(bindir)/beachmsg
+	@echo -e '   'Deleting file $(green)beachmsg$(reset) in $(green)$(DESTDIR)$(bindir)/$(reset)$(bold)beachmsg$(reset)
+	@echo -e $(green)Uninstalling DONE$(reset)
