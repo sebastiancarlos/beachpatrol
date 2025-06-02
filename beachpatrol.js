@@ -73,8 +73,14 @@ const launchOptions = {
   ignoreDefaultArgs: ['--enable-automation'], // No "controlled by automation" infobar
 };
 if (process.env.XDG_SESSION_TYPE === 'wayland') {
-  // if running on wayland, add the needed chromium wayland flag
-  launchOptions.args.push('--ozone-platform-hint=wayland');
+  // If running on wayland, add the needed chromium wayland flag
+  // Source: https://wiki.archlinux.org/title/Chromium#Force_GPU_acceleration
+  launchOptions.args.push(...[
+    '--ozone-platform-hint=auto',
+    '--enable-features=AcceleratedVideoDecodeLinuxGL',
+    '--use-gl=angle',
+    '--use-angle=vulkan',
+  ]);
 };
 browserCommand.use(StealthPlugin());
 
