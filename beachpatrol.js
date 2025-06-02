@@ -92,6 +92,19 @@ if (incognito) {
   }
 }
 
+const cleanup = () => {
+  console.log('Cleaning up and shutting down...');
+  if (fs.existsSync(SOCKET_PATH)) {
+    fs.unlinkSync(SOCKET_PATH);
+    console.log(`  - Socket file ${SOCKET_PATH} removed`);
+  }
+  if (server) {
+    server.close();
+    console.log('  - Server closed');
+  }
+  process.exit(0);
+};
+
 // Launch browser with specified profile and args
 let browserContext;
 if (incognito) {
@@ -102,6 +115,12 @@ if (incognito) {
 } else {
   browserContext = await browserCommand.launchPersistentContext(profileDir, launchOptions);
 }
+
+// cleanup on browser close
+browserContext.on('close', () => {
+  console.log('Browser context closed.');
+  cleanup();
+});
 
 // prepare UNIX socket to listen for commands
 const SOCKET_PATH = '/tmp/beachpatrol.sock';
@@ -148,3 +167,11 @@ const server = createServer((socket) => {
 
 server.listen(SOCKET_PATH);
 console.log(`beachpatrol listening on ${SOCKET_PATH}`);
+
+// Handle process termination signals
+for (const sig of ['SIGINT', 'SIGTERM']) {
+  process.on(sig, () => {
+    console.log(`\nReceived termination signal: ${sig}`);
+    cleanup();
+  });
+}
