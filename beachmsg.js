@@ -5,7 +5,8 @@ import fs from 'fs';
 import path from 'path';
 import { URL } from 'url';
 
-const SOCKET_PATH = '/tmp/beachpatrol.sock';
+const DATA_DIR = process.env.XDG_DATA_HOME || path.join(HOME_DIR, '.local/share');
+const SOCKET_PATH = `${DATA_DIR}/beachpatrol/beachpatrol.sock`;
 
 // if there are no arguments, bail out
 if (process.argv.length < 3) {

@@ -123,7 +123,12 @@ browserContext.on('close', () => {
 });
 
 // prepare UNIX socket to listen for commands
-const SOCKET_PATH = '/tmp/beachpatrol.sock';
+const DATA_DIR = process.env.XDG_DATA_HOME || path.join(HOME_DIR, '.local/share');
+const SOCKET_DIR = `${DATA_DIR}/beachpatrol`;
+if (!fs.existsSync(SOCKET_DIR)) {
+  fs.mkdirSync(SOCKET_DIR, { recursive: true });
+}
+const SOCKET_PATH = `${SOCKET_DIR}/beachpatrol.sock`;
 if (fs.existsSync(SOCKET_PATH)) {
   fs.unlinkSync(SOCKET_PATH);
 }
