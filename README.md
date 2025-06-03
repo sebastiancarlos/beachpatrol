@@ -47,7 +47,7 @@ situations (such as pagination and dropdowns), and will support hotkeys:
 
 - Linux (Wayland or X11) or macOS
 - Node.js and NPM
-- Chromium or Firefox (installed automatically by Puppeteer)
+- Chromium or Firefox (installed automatically by Playwright)
 
 ## Installation
 
