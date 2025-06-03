@@ -220,6 +220,15 @@ This project is in **alpha**.
   release.
 - Contributions welcome!
 
+## Known Issues
+
+Due to a [known limitation of
+Playwright](https://github.com/microsoft/playwright/issues/35415), the
+in-browser download manager will should UUIDs for downloaded file names.
+However, the downloading functionality itself should work as expected: all
+downloaded files should correctly appear in to the expected folder with the
+originally suggested file name.
+
 ## You might also like
 - [TabFS](https://github.com/osnr/TabFS)
 - [Violentmonkey](https://github.com/violentmonkey/violentmonkey)

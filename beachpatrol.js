@@ -131,6 +131,50 @@ browserContext.on('close', () => {
   cleanup();
 });
 
+// get directory for downloaded files
+const DOWNLOAD_DIR = process.env.XDG_DOWNLOAD_DIR || path.join(HOME_DIR, 'Downloads');
+if (!fs.existsSync(DOWNLOAD_DIR)) {
+  fs.mkdirSync(DOWNLOAD_DIR, { recursive: true });
+}
+
+// Handler for file downloads.
+// - By default, Playwright intercepts native downloads and stores the files with UUID names
+//   in the /tmp folder which is deleted after closing the browser.
+// - To get a close-to-native behavior, we use our own download handler.
+const handleDownload = async (download) => {
+  const filename = download.suggestedFilename();
+  console.log(`Got download event for: ${filename}`);
+
+  let savePath = path.join(DOWNLOAD_DIR, filename);
+  let counter = 0;
+
+  // Iterate increasing the counter in the filename until there is no name clash.
+  while (fs.existsSync(savePath)) {
+    const ext = path.extname(filename);
+    const base = path.basename(filename, ext);
+    counter++;
+    filename = `${base} (${counter})${ext}`;
+    savePath = path.join(DOWNLOAD_DIR, filename);
+  }
+
+  console.log(`Attempting to download: ${filename} (as ${filename}) to ${DOWNLOAD_DIR}`);
+  try {
+    await download.saveAs(savePath);
+    console.log(`  - Successfully downloaded: ${savePath}`);
+  } catch (error) {
+    console.error(`  - Failed to download: ${error.message}`);
+  }
+}
+
+// As the download event is triggered by Page objects, we need to attach our handler to existing
+// and new pages.
+browserContext.pages().forEach(page => {
+  page.on('download', handleDownload);
+});
+browserContext.on('page', async (page) => {
+  page.on('download', handleDownload);
+});
+
 // prepare UNIX socket to listen for commands
 const DATA_DIR = process.env.XDG_DATA_HOME || path.join(HOME_DIR, '.local/share');
 const SOCKET_DIR = `${DATA_DIR}/beachpatrol`;
