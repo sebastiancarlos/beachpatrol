@@ -88,8 +88,8 @@ Beachpatrol also installs and loads the packages `patchright`,
 the fact that the browser is automated, which in turn is needed for basic
 features such as Google Sign-in. 
 
-Naturally, the above package is tangentially related to a cat-and-mouse game
-between web-scrapers and web-masters. As such, it might stop working at any
+Naturally, the above packages are tangentially related to a cat-and-mouse game
+between web-scrapers and web-masters. As such, they might stop working at any
 time. Beachpatrol guarantees to find new automation-hiding techniques if that
 happens. Beachpatrol also encourages users to respect every website's terms and
 conditions.
@@ -228,6 +228,10 @@ in-browser download manager will should UUIDs for downloaded file names.
 However, the downloading functionality itself should work as expected: all
 downloaded files should correctly appear in to the expected folder with the
 originally suggested file name.
+
+The state-of-the-art stealth plugins are currently only available for Chromium.
+Firefox users might encounter some issues such as Cloudflare's false positives,
+and extra Google captchas.
 
 ## You might also like
 - [TabFS](https://github.com/osnr/TabFS)
