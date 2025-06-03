@@ -1,7 +1,12 @@
 #!/usr/bin/env node
 
-import { chromium, firefox } from 'playwright-extra';
+// chromium-related imports
+import { chromium } from 'patchright';
+
+// firefox-related imports
+import { firefox } from 'playwright-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth'
+
 import fs from 'fs';
 import { createServer } from 'net';
 import path from 'path';
@@ -82,7 +87,11 @@ if (process.env.XDG_SESSION_TYPE === 'wayland') {
     '--use-angle=vulkan',
   ]);
 };
-browserCommand.use(StealthPlugin());
+
+// firefox uses "puppeteer-extra-plugin-stealth" because "patchright" doesn't support firefox
+if (browser === 'firefox') {
+  browserCommand.use(StealthPlugin());
+}
 
 if (incognito) {
   if (browser === 'chromium') {

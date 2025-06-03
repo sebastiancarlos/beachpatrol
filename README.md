@@ -83,10 +83,10 @@ of using a non-automated browser. For example, it does not set a fixed viewport
 (which is, otherwise, a sensible default for Playwright's main use-case of
 automated testing.)
 
-Beachpatrol also installs and loads the packages `playwright-extra` and
-`puppeteer-extra-plugin-stealth`. This is needed to hide the fact that the
-browser is automated, which in turn is needed for basic features such as Google
-Sign-in. 
+Beachpatrol also installs and loads the packages `patchright`,
+`playwright-extra` and `puppeteer-extra-plugin-stealth`. This is needed to hide
+the fact that the browser is automated, which in turn is needed for basic
+features such as Google Sign-in. 
 
 Naturally, the above package is tangentially related to a cat-and-mouse game
 between web-scrapers and web-masters. As such, it might stop working at any
@@ -94,8 +94,13 @@ time. Beachpatrol guarantees to find new automation-hiding techniques if that
 happens. Beachpatrol also encourages users to respect every website's terms and
 conditions.
 
-After the browser is launched, it listens on a UNIX socket created on
-`/tmp/beachpatrol.sock` for messages by `beachmsg`.
+`patchright` is currently one of the best tools for this task. However, it
+doesn't support Firefox. We use `puppeteer-extra-plugin-stealth` for Firefox,
+which might encounter some issues such as Cloudflare's false positives, and
+extra Google captchas.
+
+After the browser is launched, it listens on a UNIX socket, `beachpatrol.sock`,
+for messages by `beachmsg`.
 
 ## Usage
 
