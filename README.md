@@ -198,8 +198,11 @@ bookmarklets have their place and can be the preferred choice for many users.
 
 ### Writing Playwright scripts for every task takes too long.
 
-You can use [Chromium DevDool's Recorder tab](https://developer.chrome.com/docs/devtools/recorder/reference) to record actions and export them as
-Puppeteer scripts, which use the same API as Playwright.
+You can use [Chromium DevDool's Recorder
+tab](https://developer.chrome.com/docs/devtools/recorder/reference) to record
+actions and export them as Puppeteer scripts, which use the same API as
+Playwright. Or, you can use the Playwright
+[`codegen`](https://playwright.dev/docs/codegen).
 
 Also, given Playwright's popularity, you can describe your task in natural language
 to an AI and ask for it as a Playwright script. With some practice, this should 
