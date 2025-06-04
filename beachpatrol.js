@@ -5,7 +5,7 @@ import { chromium } from 'patchright';
 
 // firefox-related imports
 import { firefox } from 'playwright-extra';
-import StealthPlugin from 'puppeteer-extra-plugin-stealth'
+import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 
 import fs from 'fs';
 import { createServer } from 'net';
@@ -103,7 +103,7 @@ if (incognito) {
 
 const cleanup = () => {
   console.log('Cleaning up and shutting down...');
-  if (fs.existsSync(SOCKET_PATH)) {
+  if (usingUnixDomainSocket && fs.existsSync(SOCKET_PATH)) {
     fs.unlinkSync(SOCKET_PATH);
     console.log(`  - Socket file ${SOCKET_PATH} removed`);
   }
@@ -175,15 +175,19 @@ browserContext.on('page', async (page) => {
   page.on('download', handleDownload);
 });
 
-// prepare UNIX socket to listen for commands
 const DATA_DIR = process.env.XDG_DATA_HOME || path.join(HOME_DIR, '.local/share');
 const SOCKET_DIR = `${DATA_DIR}/beachpatrol`;
-if (!fs.existsSync(SOCKET_DIR)) {
-  fs.mkdirSync(SOCKET_DIR, { recursive: true });
-}
 const SOCKET_PATH = `${SOCKET_DIR}/beachpatrol.sock`;
-if (fs.existsSync(SOCKET_PATH)) {
-  fs.unlinkSync(SOCKET_PATH);
+const NAMED_PIPE = String.raw`\\.\pipe\beachpatrol`;
+const usingUnixDomainSocket = process.platform !== "win32";
+if (usingUnixDomainSocket) {
+  // prepare UNIX socket to listen for commands
+  if (!fs.existsSync(SOCKET_DIR)) {
+    fs.mkdirSync(SOCKET_DIR, { recursive: true });
+  }
+  if (fs.existsSync(SOCKET_PATH)) {
+    fs.unlinkSync(SOCKET_PATH);
+  }
 }
 
 // Listen for commands
@@ -223,8 +227,9 @@ const server = createServer((socket) => {
   });
 });
 
-server.listen(SOCKET_PATH);
-console.log(`beachpatrol listening on ${SOCKET_PATH}`);
+let endpoint = usingUnixDomainSocket ? SOCKET_PATH : NAMED_PIPE;
+server.listen(endpoint);
+console.log(`beachpatrol listening on ${endpoint}`);
 
 // Handle process termination signals
 for (const sig of ['SIGINT', 'SIGTERM']) {

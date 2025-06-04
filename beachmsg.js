@@ -26,7 +26,14 @@ if (!fs.existsSync(commandFilePath)) {
 }
 
 // Send command and args
-const client = connect(SOCKET_PATH, () => {
+let endpoint;
+if (process.platform !== "win32") {
+  const DATA_DIR = process.env.XDG_DATA_HOME || path.join(process.env.HOME, ".local/share");
+  endpoint = `${DATA_DIR}/beachpatrol/beachpatrol.sock`;
+} else {
+  endpoint = String.raw`\\.\pipe\beachpatrol`;
+}
+const client = connect(endpoint, () => {
   client.write([commandName, ...args].join(' ')); 
 });
 
