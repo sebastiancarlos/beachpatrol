@@ -197,7 +197,7 @@ const server = createServer((socket) => {
     const [commandName, ...args] = message;
     const COMMANDS_DIR = 'commands';
     const projectRoot = new URL('.', import.meta.url).pathname;
-    const commandFilePath = path.join(projectRoot, COMMANDS_DIR, `${commandName}.js`);
+    const commandFilePath = path.join(projectRoot, COMMANDS_DIR, `${commandName}.js`).replace(/^\\/, '');
 
     // log command
     console.log(`Received command: ${commandName} ${args.join(' ')}`);
@@ -212,7 +212,7 @@ const server = createServer((socket) => {
       try {
         // import with a timestamp to avoid caching
         const modulePath = path.resolve(commandFilePath);
-        const {default: command} = await import(`${modulePath}?t=${Date.now()}`);
+        const {default: command} = await import(`file://${modulePath}?t=${Date.now()}`);
 
         await command(browserContext, ...args);
         const SUCCESS_MESSAGE = 'Command executed successfully.';

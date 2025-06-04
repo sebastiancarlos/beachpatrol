@@ -5,7 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import { URL } from 'url';
 
-const DATA_DIR = process.env.XDG_DATA_HOME || path.join(HOME_DIR, '.local/share');
+const DATA_DIR = process.env.XDG_DATA_HOME || path.join(process.env.HOME, '.local/share');
 const SOCKET_PATH = `${DATA_DIR}/beachpatrol/beachpatrol.sock`;
 
 // if there are no arguments, bail out
@@ -19,7 +19,7 @@ const [,, commandName, ...args] = process.argv;
 // Check if command script exists
 const COMMANDS_DIR = 'commands';
 const projectRoot = new URL('.', import.meta.url).pathname;
-const commandFilePath = path.join(projectRoot, COMMANDS_DIR, `${commandName}.js`);
+const commandFilePath = path.join(projectRoot, COMMANDS_DIR, `${commandName}.js`).replace(/^\\/, '');
 if (!fs.existsSync(commandFilePath)) {
   console.error(`Error: Command script ${commandName}.js does not exist.`);
   process.exit(1);
