@@ -5,9 +5,6 @@ import fs from 'fs';
 import path from 'path';
 import { URL } from 'url';
 
-const DATA_DIR = process.env.XDG_DATA_HOME || path.join(process.env.HOME, '.local/share');
-const SOCKET_PATH = `${DATA_DIR}/beachpatrol/beachpatrol.sock`;
-
 // if there are no arguments, bail out
 if (process.argv.length < 3) {
   console.error('Error: No command specified.');
