@@ -1,5 +1,11 @@
 #!/usr/bin/env node
 
+import fs from 'fs';
+import os from 'os';
+import { createServer } from 'net';
+import path from 'path';
+import { URL } from 'url';
+
 // chromium-related imports
 import { chromium } from 'patchright';
 
@@ -7,15 +13,7 @@ import { chromium } from 'patchright';
 import { firefox } from 'playwright-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth'
 
-import fs from 'fs';
-import { createServer } from 'net';
-import path from 'path';
-import { URL } from 'url';
-
-const HOME_DIR = process.env.HOME;
-if (!HOME_DIR) {
-  throw new Error('HOME environment variable not set.');
-}
+const HOME_DIR = os.homedir();
 
 const SUPPORTED_BROWSERS = ['chromium', 'firefox'];
 
