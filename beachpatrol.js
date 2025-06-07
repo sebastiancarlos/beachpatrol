@@ -31,6 +31,8 @@ if (process.argv.includes('--help') || process.argv.includes('-h')) {
   console.log(`      Supported browsers: ${SUPPORTED_BROWSERS.join(', ')}`);
   console.log('  --incognito               Launch browser in incognito mode');
   console.log('  --headless                Launch browser in headless mode');
+  console.log('  --help                    Show this help message');
+  console.log();
   process.exit(0);
 }
 

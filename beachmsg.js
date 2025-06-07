@@ -10,6 +10,19 @@ const HOME_DIR = os.homedir();
 const DATA_DIR = process.env.XDG_DATA_HOME || path.join(HOME_DIR, '.local/share');
 const SOCKET_PATH = `${DATA_DIR}/beachpatrol/beachpatrol.sock`;
 
+// if --help/-h, print usage
+if (process.argv.includes('--help') || process.argv.includes('-h')) {
+  console.log('Usage: beachmsg <command> [args...]');
+  console.log();
+  console.log('Sends a command to the beachpatrol server controlling the browser.');
+  console.log('The provided command must exist in the "commands" directory of beachpatrol.');
+  console.log();
+  console.log('Options:');
+  console.log('  --help                    Show this help message');
+  console.log();
+  process.exit(0);
+}
+
 // if there are no arguments, bail out
 if (process.argv.length < 3) {
   console.error('Error: No command specified.');

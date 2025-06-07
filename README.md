@@ -120,13 +120,17 @@ Options:
       Supported browsers: chromium, firefox
   --incognito               Launch browser in incognito mode
   --headless                Launch browser in headless mode
+  --help                    Show this help message
 ```
 
 ```bash
-Usage: beachmsg <command> [<arg>...]
+Usage: beachmsg <command> [args...]
 
-Send commands to beachpatrol. The provided command must exist
-in the commands directory of beachpatrol.
+Sends a command to the beachpatrol server controlling the browser.
+The provided command must exist in the "commands" directory of beachpatrol.
+
+Options:
+  --help                    Show this help message
 ```
 
 ## F.A.Q.
