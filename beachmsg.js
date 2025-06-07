@@ -4,7 +4,9 @@ import { connect } from 'net';
 import fs from 'fs';
 import path from 'path';
 import { URL } from 'url';
+import os from 'os';
 
+const HOME_DIR = os.homedir();
 const DATA_DIR = process.env.XDG_DATA_HOME || path.join(HOME_DIR, '.local/share');
 const SOCKET_PATH = `${DATA_DIR}/beachpatrol/beachpatrol.sock`;
 
