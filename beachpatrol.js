@@ -72,7 +72,7 @@ const browserCommand = browser === 'chromium' ? chromium : firefox;
 
 // prepare launch options and hide automation
 const launchOptions = {
-  headless: false,
+  headless: headless,
   viewport: null, // Let browser decide viewport
   args: [], 
   ignoreDefaultArgs: ['--enable-automation'], // No "controlled by automation" infobar
