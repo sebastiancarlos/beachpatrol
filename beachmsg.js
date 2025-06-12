@@ -6,10 +6,6 @@ import path from 'path';
 import { URL } from 'url';
 import os from 'os';
 
-const HOME_DIR = os.homedir();
-const DATA_DIR = process.env.XDG_DATA_HOME || path.join(HOME_DIR, '.local/share');
-const SOCKET_PATH = `${DATA_DIR}/beachpatrol/beachpatrol.sock`;
-
 // if --help/-h, print usage
 if (process.argv.includes('--help') || process.argv.includes('-h')) {
   console.log('Usage: beachmsg <command> [args...]');
@@ -34,14 +30,22 @@ const [,, commandName, ...args] = process.argv;
 // Check if command script exists
 const COMMANDS_DIR = 'commands';
 const projectRoot = new URL('.', import.meta.url).pathname;
-const commandFilePath = path.join(projectRoot, COMMANDS_DIR, `${commandName}.js`);
+const commandFilePath = path.join(projectRoot, COMMANDS_DIR, `${commandName}.js`).replace(/^\\/, '');
 if (!fs.existsSync(commandFilePath)) {
   console.error(`Error: Command script ${commandName}.js does not exist.`);
   process.exit(1);
 }
 
 // Send command and args
-const client = connect(SOCKET_PATH, () => {
+let endpoint;
+if (process.platform !== "win32") {
+  const HOME_DIR = os.homedir();
+  const DATA_DIR = process.env.XDG_DATA_HOME || path.join(HOME_DIR, '.local/share');
+  endpoint = `${DATA_DIR}/beachpatrol/beachpatrol.sock`;
+} else {
+  endpoint = String.raw`\\.\pipe\beachpatrol`;
+}
+const client = connect(endpoint, () => {
   client.write([commandName, ...args].join(' ')); 
 });
 
