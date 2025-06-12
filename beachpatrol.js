@@ -142,7 +142,7 @@ if (!fs.existsSync(DOWNLOAD_DIR)) {
 //   in the /tmp folder which is deleted after closing the browser.
 // - To get a close-to-native behavior, we use our own download handler.
 const handleDownload = async (download) => {
-  const filename = download.suggestedFilename();
+  let filename = download.suggestedFilename();
   console.log(`Got download event for: ${filename}`);
 
   let savePath = path.join(DOWNLOAD_DIR, filename);
