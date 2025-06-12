@@ -1,0 +1,41 @@
+name: Build And Test
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+  # Allow manual triggering from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: Build And Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+          cache: 'npm'
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Build Project
+        run: npm ci
+
+      - name: Install Playwright browsers (and their OS dependencies)
+        # It should not re-download if browsers exist.
+        run: npx playwright install --with-deps chromium
+
+      - name: Run tests
+        run: npm test
