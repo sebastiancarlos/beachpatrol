@@ -4,7 +4,7 @@ import fs from 'fs';
 import os from 'os';
 import { createServer } from 'net';
 import path from 'path';
-import { URL } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 
 // chromium-related imports
 import { chromium } from 'patchright';
@@ -196,8 +196,8 @@ const server = createServer((socket) => {
     const message = data.toString().trim().split(' '); // Splitting message into parts
     const [commandName, ...args] = message;
     const COMMANDS_DIR = 'commands';
-    const projectRoot = new URL('.', import.meta.url).pathname;
-    const commandFilePath = path.join(projectRoot, COMMANDS_DIR, `${commandName}.js`).replace(/^\\/, '');
+    const projectRoot = path.dirname(fileURLToPath(import.meta.url));
+    const commandFilePath = path.join(projectRoot, COMMANDS_DIR, `${commandName}.js`);
 
     // log command
     console.log(`Received command: ${commandName} ${args.join(' ')}`);
@@ -211,8 +211,8 @@ const server = createServer((socket) => {
       // Import and run the command
       try {
         // import with a timestamp to avoid caching
-        const modulePath = path.resolve(commandFilePath);
-        const {default: command} = await import(`file://${modulePath}?t=${Date.now()}`);
+        const moduleURL = pathToFileURL(commandFilePath).href;
+        const {default: command} = await import(`${moduleURL}?t=${Date.now()}`);
 
         await command(browserContext, ...args);
         const SUCCESS_MESSAGE = 'Command executed successfully.';

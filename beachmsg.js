@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
 import { connect } from 'net';
+import os from 'os';
 import fs from 'fs';
 import path from 'path';
-import { URL } from 'url';
-import os from 'os';
+import { fileURLToPath } from 'url';
 
 // if --help/-h, print usage
 if (process.argv.includes('--help') || process.argv.includes('-h')) {
@@ -29,8 +29,8 @@ const [,, commandName, ...args] = process.argv;
 
 // Check if command script exists
 const COMMANDS_DIR = 'commands';
-const projectRoot = new URL('.', import.meta.url).pathname;
-const commandFilePath = path.join(projectRoot, COMMANDS_DIR, `${commandName}.js`).replace(/^\\/, '');
+const projectRoot = path.dirname(fileURLToPath(import.meta.url));
+const commandFilePath = path.join(projectRoot, COMMANDS_DIR, `${commandName}.js`);
 if (!fs.existsSync(commandFilePath)) {
   console.error(`Error: Command script ${commandName}.js does not exist.`);
   process.exit(1);
@@ -40,7 +40,7 @@ if (!fs.existsSync(commandFilePath)) {
 let endpoint;
 if (process.platform !== "win32") {
   const HOME_DIR = os.homedir();
-  const DATA_DIR = process.env.XDG_DATA_HOME || path.join(HOME_DIR, '.local/share');
+  const DATA_DIR = process.env.XDG_DATA_HOME || path.join(HOME_DIR, ".local/share");
   endpoint = `${DATA_DIR}/beachpatrol/beachpatrol.sock`;
 } else {
   endpoint = String.raw`\\.\pipe\beachpatrol`;
