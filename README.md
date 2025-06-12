@@ -12,6 +12,9 @@ Beachpatrol is a CLI tool to replace and automate your everyday web browser.
 
 https://github.com/sebastiancarlos/beachpatrol/assets/88276600/bc3bf9e8-28e2-48ef-a1f4-8754b4918916
 
+![beachpatrol](https://github.com/sebastiancarlos/beachpatrol/actions/workflows/ci.yml/badge.svg)
+![License](https://img.shields.io/badge/License-MIT-green)
+
 Run `beachpatrol` to launch a Chromium or Firefox browser which can be controlled
 externally through [Playwright](https://playwright.dev/) scripts. You can use it as your daily driver; it works
 like a regular browser. 
