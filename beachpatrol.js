@@ -195,6 +195,15 @@ const server = createServer((socket) => {
   socket.on('data', async (data) => {
     const message = data.toString().trim().split(' '); // Splitting message into parts
     const [commandName, ...args] = message;
+
+    // Sanitize commandName
+    if (commandName.includes('..')) {
+      const ERROR_MESSAGE = `Error: Invalid command name '${rawCommandName}'. No path traversal allowed.`;
+      console.log(ERROR_MESSAGE);
+      socket.write(`${ERROR_MESSAGE}\n`);
+      return;
+    }
+
     const COMMANDS_DIR = 'commands';
     const projectRoot = path.dirname(fileURLToPath(import.meta.url));
     const commandFilePath = path.join(projectRoot, COMMANDS_DIR, `${commandName}.js`);
