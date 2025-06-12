@@ -2,6 +2,11 @@ import { execSync } from 'child_process';
 import { access } from 'node:fs/promises';
 import { createInterface } from 'node:readline/promises';
 
+if (process.env.CI === 'true') {
+  console.log('CI environment detected. Skipping interactive postinstall script.');
+  process.exit(0);
+}
+
 const SUPPORTED_BROWSERS = ['chromium', 'firefox']
 
 const getInstalledBrowsers = async () => {
