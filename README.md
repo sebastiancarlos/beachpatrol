@@ -233,8 +233,9 @@ This project is in **alpha**.
   files should correctly appear in to the expected folder with the originally
   suggested file name.
 - The state-of-the-art stealth plugins are currently only available for
-  Chromium. Firefox users might encounter some issues such as Cloudflare's
-  false positives, and extra Google captchas.
+  Chromium. Firefox has slightly less advanced plugins currently, so users
+  might encounter some issues such as Cloudflare's false positives, and extra
+  Google captchas.
 
 ## You might also like
 - [TabFS](https://github.com/osnr/TabFS)
