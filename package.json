@@ -12,7 +12,8 @@
     "beachmsg": "./beachmsg.js"
   },
   "scripts": {
-    "postinstall": "node ./.internal-scripts/postinstall.js"
+    "postinstall": "node ./.internal-scripts/postinstall.js",
+    "test": "node --test \"./test/*.js\""
   },
   "keywords": [],
   "author": "sebastiancarlos",
