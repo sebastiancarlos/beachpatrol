@@ -1,4 +1,4 @@
-name: Build And Test
+name: Build And Test (Linux, macOS, Windows)
 
 on:
   push:
@@ -11,8 +11,13 @@ on:
 
 jobs:
   build-and-test:
-    name: Build And Tests
-    runs-on: ubuntu-latest
+    name: Build and Test on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
       - name: Checkout code
@@ -27,7 +32,9 @@ jobs:
       - name: Cache Playwright browsers
         uses: actions/cache@v4
         with:
-          path: ~/.cache/ms-playwright
+          path: |
+            ~/.cache/ms-playwright
+            %LOCALAPPDATA%/ms-playwright
           key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
 
       - name: Build Project
