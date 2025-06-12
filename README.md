@@ -45,10 +45,7 @@ situations (such as pagination and dropdowns), and will support hotkeys:
 
 ## Requirements
 
-- Linux (Wayland or X11) or macOS
-  - **Note:** Windows support is WIP. You can try [this
-    branch](https://github.com/sebastiancarlos/beachpatrol/pull/4) which should
-    be working properly.
+- Linux (Wayland or X11), macOS or Windows
 - Node.js and NPM
 - Chromium or Firefox (installed automatically by Playwright)
 
@@ -59,6 +56,7 @@ situations (such as pagination and dropdowns), and will support hotkeys:
 - Run `npm install` to install dependencies.
 - Run `make` to install symlinks to the executables (in `/usr/local/bin` by
   default, which should be in your `PATH`)
+  - On Windows, you can instead run `npm install -g .` to install it globally.
 
 ## Example
 
@@ -219,10 +217,6 @@ get you halfway to a working script.
 
 This project is in **alpha**. 
 - The API is subject to change.
-- Currently Linux and macOS are supported.
-  - **Note:** Windows support is WIP. You can try [this
-    branch](https://github.com/sebastiancarlos/beachpatrol/pull/4) which should
-    be working properly.
 - Currently only Chromium and Firefox are supported.
 - The ability to run a command when a new URL matches a pattern will be added soon.
 - The `beachpatrol-browser-extension` is in early-testing and **not publicly
