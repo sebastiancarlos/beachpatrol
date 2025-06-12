@@ -1,5 +1,11 @@
 #!/usr/bin/env node
 
+import fs from 'fs';
+import os from 'os';
+import { createServer } from 'net';
+import path from 'path';
+import { URL } from 'url';
+
 // chromium-related imports
 import { chromium } from 'patchright';
 
@@ -7,15 +13,7 @@ import { chromium } from 'patchright';
 import { firefox } from 'playwright-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 
-import fs from 'fs';
-import { createServer } from 'net';
-import path from 'path';
-import { URL } from 'url';
-
-const HOME_DIR = process.env.HOME;
-if (!HOME_DIR) {
-  throw new Error('HOME environment variable not set.');
-}
+const HOME_DIR = os.homedir();
 
 const SUPPORTED_BROWSERS = ['chromium', 'firefox'];
 
@@ -33,6 +31,8 @@ if (process.argv.includes('--help') || process.argv.includes('-h')) {
   console.log(`      Supported browsers: ${SUPPORTED_BROWSERS.join(', ')}`);
   console.log('  --incognito               Launch browser in incognito mode');
   console.log('  --headless                Launch browser in headless mode');
+  console.log('  --help                    Show this help message');
+  console.log();
   process.exit(0);
 }
 
@@ -72,7 +72,7 @@ const browserCommand = browser === 'chromium' ? chromium : firefox;
 
 // prepare launch options and hide automation
 const launchOptions = {
-  headless: false,
+  headless: headless,
   viewport: null, // Let browser decide viewport
   args: [], 
   ignoreDefaultArgs: ['--enable-automation'], // No "controlled by automation" infobar

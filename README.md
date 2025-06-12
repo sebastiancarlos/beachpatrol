@@ -46,6 +46,9 @@ situations (such as pagination and dropdowns), and will support hotkeys:
 ## Requirements
 
 - Linux (Wayland or X11) or macOS
+  - **Note:** Windows support is WIP. You can try [this
+    branch](https://github.com/sebastiancarlos/beachpatrol/pull/4) which should
+    be working properly.
 - Node.js and NPM
 - Chromium or Firefox (installed automatically by Playwright)
 
@@ -117,13 +120,17 @@ Options:
       Supported browsers: chromium, firefox
   --incognito               Launch browser in incognito mode
   --headless                Launch browser in headless mode
+  --help                    Show this help message
 ```
 
 ```bash
-Usage: beachmsg <command> [<arg>...]
+Usage: beachmsg <command> [args...]
 
-Send commands to beachpatrol. The provided command must exist
-in the commands directory of beachpatrol.
+Sends a command to the beachpatrol server controlling the browser.
+The provided command must exist in the "commands" directory of beachpatrol.
+
+Options:
+  --help                    Show this help message
 ```
 
 ## F.A.Q.
@@ -213,6 +220,9 @@ get you halfway to a working script.
 This project is in **alpha**. 
 - The API is subject to change.
 - Currently Linux and macOS are supported.
+  - **Note:** Windows support is WIP. You can try [this
+    branch](https://github.com/sebastiancarlos/beachpatrol/pull/4) which should
+    be working properly.
 - Currently only Chromium and Firefox are supported.
 - The ability to run a command when a new URL matches a pattern will be added soon.
 - The `beachpatrol-browser-extension` is in early-testing and **not publicly

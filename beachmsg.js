@@ -4,6 +4,20 @@ import { connect } from 'net';
 import fs from 'fs';
 import path from 'path';
 import { URL } from 'url';
+import os from 'os';
+
+// if --help/-h, print usage
+if (process.argv.includes('--help') || process.argv.includes('-h')) {
+  console.log('Usage: beachmsg <command> [args...]');
+  console.log();
+  console.log('Sends a command to the beachpatrol server controlling the browser.');
+  console.log('The provided command must exist in the "commands" directory of beachpatrol.');
+  console.log();
+  console.log('Options:');
+  console.log('  --help                    Show this help message');
+  console.log();
+  process.exit(0);
+}
 
 // if there are no arguments, bail out
 if (process.argv.length < 3) {
@@ -25,7 +39,8 @@ if (!fs.existsSync(commandFilePath)) {
 // Send command and args
 let endpoint;
 if (process.platform !== "win32") {
-  const DATA_DIR = process.env.XDG_DATA_HOME || path.join(process.env.HOME, ".local/share");
+  const HOME_DIR = os.homedir();
+  const DATA_DIR = process.env.XDG_DATA_HOME || path.join(HOME_DIR, '.local/share');
   endpoint = `${DATA_DIR}/beachpatrol/beachpatrol.sock`;
 } else {
   endpoint = String.raw`\\.\pipe\beachpatrol`;
