@@ -46,7 +46,7 @@ if (process.platform !== "win32") {
   endpoint = String.raw`\\.\pipe\beachpatrol`;
 }
 const client = connect(endpoint, () => {
-  client.write([commandName, ...args].join(' ')); 
+  client.write(JSON.stringify([commandName, ...args])); 
 });
 
 client.on('data', (data) => {
