@@ -193,7 +193,12 @@ if (usingUnixDomainSocket) {
 // Listen for commands
 const server = createServer((socket) => {
   socket.on('data', async (data) => {
-    const message = data.toString().trim().split(' '); // Splitting message into parts
+    let message;
+    try {
+      message = JSON.parse(data.toString());
+    } catch (e) {
+      message = data.toString().trim().split(' ');
+    }
     const [commandName, ...args] = message;
 
     // Sanitize commandName
