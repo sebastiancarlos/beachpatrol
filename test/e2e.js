@@ -17,6 +17,9 @@ const BEACHMSG_EXPECTED_STDOUT = "Command executed successfully.";
 
 const SERVER_TIMEOUT = 8_000;
 
+// If set, use browser in env var TEST_BROWSERS (used by CI)
+const browser = process.env.TEST_BROWSER || "chromium";
+
 test("Beachpatrol E2E Smoke Test", async (t) => {
   console.log(">>> Starting beachpatrol server for test...");
   const beachpatrolProcess = spawn("node", [
@@ -24,7 +27,7 @@ test("Beachpatrol E2E Smoke Test", async (t) => {
     "--headless",
     "--incognito",
     "--browser",
-    "chromium",
+    browser,
   ]);
 
   // on cleanup, kill process and notify handlers with flag
