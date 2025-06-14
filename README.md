@@ -23,9 +23,9 @@ Use also `beachpatrol --profile <profile-name>` to launch a specific profile,
 or `beachpatrol --incognito`.
 
 To automate it, create a custom Playwright script in the `beachpatrol/commands`
-folder. Then, run `beachmsg <script-name> [<argument>...]`. It will run your
-script by default on the currently focused tab, but you can use the Playwright
-API to move to an existing tab, open a new one, or use a headless tab instead.
+folder. Then, run `beachmsg <script-name> [<argument>...]`, and it will run it.
+You can use the Playwright API to work on the currently focused tab, move to an
+existing tab, open a new one, or use a headless tab instead.
 
 If you don't want to go back and forth to the CLI to automate your browser, you can
 install the `beachpatrol-browser-extension`. Its UI allows you to select a
@@ -79,7 +79,50 @@ situations (such as pagination and dropdowns), and will support hotkeys:
   performs the classic [Selenium smoke
   test](https://www.selenium.dev/documentation/webdriver/getting_started/first_script/).
 - If it reads "Form submitted", it worked correctly.
-- Now create your own automation scripts!
+- Now create your own automation commands!
+
+### Writing Your First Command
+
+Suppose you want to automate web search. You can create a `commands/search.js`
+file (relative to the cloned repo directory) with the following content:
+
+```javascript
+export default async (context, ...searchTerms) => {
+  const page = await context.newPage();
+  await page.goto(
+    `https://www.google.com/search?q=${encodeURIComponent(searchTerms.join(" "))}`,
+  );
+};
+```
+
+Every Beachpatrol command must export a default async function, which is the
+entry point of your command.
+
+The function should take:
+- The Playwright browser context as its first argument, and
+- the arguments to the command, if any.
+
+Then, you simply automate the browser by interacting with the [BrowserContext
+API](https://playwright.dev/docs/api/class-browsercontext).
+
+The `search.js` command above opens a new tab (`context.newPage()`), performs
+the task, and leaves it focused. Other possible commands might work on the
+currently focused tab, or expect one or more particular tabs to be already
+open. All of this depends on your use-case; you are free to implement commands
+as you see fit.
+
+To run your new command, execute the following from your terminal:
+
+```bash
+beachmsg search "your search terms here"
+```
+
+**Tip**: You can edit your command files and re-run them without needing to
+restart the `beachpatrol` server! Your changes will be picked up automatically.
+
+You can always look at the built-in
+[`commands/smoke-test.js`](https://github.com/sebastiancarlos/beachpatrol/blob/main/commands/smoke-test.js)
+command for inspiration.
 
 ## Technical details
 
