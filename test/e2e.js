@@ -38,11 +38,10 @@ test('Beachpatrol E2E Smoke Test', async (t) => {
   // wait for expected output, or timout, or unexpected exit
   let clearTimeoutId;
   try {
-   await Promise.race([
+    await Promise.race([
       (async () => {
         for await (const data of on(beachpatrolProcess.stdout, 'data')) {
-          const output = data.toString();
-          if (output.includes(SERVER_READY_MARKER)) {
+          if (data.toString().includes(SERVER_READY_MARKER)) {
             console.log('>>> Beachpatrol server started successfully.');
             return;
           }
@@ -61,9 +60,6 @@ test('Beachpatrol E2E Smoke Test', async (t) => {
         };
       })()
     ]);
-  } catch (err) {
-    console.log('err', err);
-    throw err;
   } finally {
     clearTimeout(clearTimeoutId);
   }
