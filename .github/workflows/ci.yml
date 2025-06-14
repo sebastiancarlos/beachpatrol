@@ -2,9 +2,9 @@ name: Build And Test (Linux, macOS, Windows)
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
   # Allow manual triggering from the Actions tab
   workflow_dispatch:
@@ -23,11 +23,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Use Node.js 
+      - name: Use Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 24.x
-          cache: 'npm'
+          cache: "npm"
 
       - name: Cache Playwright browsers
         uses: actions/cache@v4

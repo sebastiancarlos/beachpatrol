@@ -1,13 +1,15 @@
-import { execSync } from 'child_process';
-import { access } from 'node:fs/promises';
-import { createInterface } from 'node:readline/promises';
+import { execSync } from "child_process";
+import { access } from "node:fs/promises";
+import { createInterface } from "node:readline/promises";
 
-if (process.env.CI === 'true') {
-  console.log('CI environment detected. Skipping interactive postinstall script.');
+if (process.env.CI === "true") {
+  console.log(
+    "CI environment detected. Skipping interactive postinstall script.",
+  );
   process.exit(0);
 }
 
-const SUPPORTED_BROWSERS = ['chromium', 'firefox']
+const SUPPORTED_BROWSERS = ["chromium", "firefox"];
 
 const getInstalledBrowsers = async () => {
   // Parse output of `playwright install --dry-run` to get install path of browsers.
@@ -18,7 +20,9 @@ const getInstalledBrowsers = async () => {
   //    <more info>
   //    <more info>
   // ```
-  const playwRightDryInstallOutput = execSync('playwright install --dry-run').toString();
+  const playwRightDryInstallOutput = execSync(
+    "playwright install --dry-run",
+  ).toString();
   const regex = /browser: (\w+)[^\n]*\n\s+Install location:\s+([^\n]*)/gm;
   let match;
   const locations = {};
@@ -40,32 +44,38 @@ const getInstalledBrowsers = async () => {
     } catch (e) {}
   }
   return installedBrowsers;
-}
+};
 
 // get browsers to install by prompting user
 const getBrowserToInstall = async () => {
   const rl = createInterface({
-      input: process.stdin,
-      output: process.stdout
+    input: process.stdin,
+    output: process.stdout,
   });
-  console.log('No browsers are installed. You need to install at least one browser.');
-  const answer = await rl.question('Would you like to install Chromium, Firefox, or all of them? (c/f/A): ');
+  console.log(
+    "No browsers are installed. You need to install at least one browser.",
+  );
+  const answer = await rl.question(
+    "Would you like to install Chromium, Firefox, or all of them? (c/f/A): ",
+  );
   rl.close();
   let browsersToInstall = [];
   switch (answer.toLowerCase()) {
-    case 'c':
-      browsersToInstall = ['chromium'];
+    case "c":
+      browsersToInstall = ["chromium"];
       break;
-    case 'f':
-      browsersToInstall = ['firefox'];
+    case "f":
+      browsersToInstall = ["firefox"];
       break;
     default:
       browsersToInstall = SUPPORTED_BROWSERS;
   }
 
   return browsersToInstall;
-}
+};
 
 if ((await getInstalledBrowsers()).length === 0) {
-  execSync(`playwright install ${(await getBrowserToInstall()).join(' ')}`, { stdio: 'inherit' });
+  execSync(`playwright install ${(await getBrowserToInstall()).join(" ")}`, {
+    stdio: "inherit",
+  });
 }

@@ -15,9 +15,9 @@ https://github.com/sebastiancarlos/beachpatrol/assets/88276600/bc3bf9e8-28e2-48e
 ![beachpatrol](https://github.com/sebastiancarlos/beachpatrol/actions/workflows/ci.yml/badge.svg)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-Run `beachpatrol` to launch a Chromium or Firefox browser which can be controlled
-externally through [Playwright](https://playwright.dev/) scripts. You can use it as your daily driver; it works
-like a regular browser. 
+Run `beachpatrol` to launch a Chromium or Firefox browser which can be
+controlled externally through [Playwright](https://playwright.dev/) scripts.
+You can use it as your daily driver; it works like a regular browser.
 
 Use also `beachpatrol --profile <profile-name>` to launch a specific profile,
 or `beachpatrol --incognito`.
@@ -37,6 +37,7 @@ situations (such as pagination and dropdowns), and will support hotkeys:
 ![image](https://github.com/sebastiancarlos/beachpatrol/assets/88276600/751aec3f-284d-4563-ac0f-09bfa52034e2)
 
 ### What can you automate with Beachpatrol? The sky is the limit:
+
 - Check your email.
 - Check your bank transactions.
 - Download a file from a website.
@@ -65,7 +66,7 @@ situations (such as pagination and dropdowns), and will support hotkeys:
 
 - Launch a browser with `beachpatrol`
   - Optionally launch it in the background with `beachpatrol &`
-- Use it as your regular browser. 
+- Use it as your regular browser.
   - Install browser extensions if you want.
   - If you close it. Run `beachpatrol` again and you should still be logged-in
     to all your sites.
@@ -75,11 +76,12 @@ situations (such as pagination and dropdowns), and will support hotkeys:
       in-browser's profile features to switch profiles. However, this might be
       fixed in the future.
 - Run `beachmsg smoke-test` to run the pre-installed test command, which
-  performs the classic [Selenium smoke test](https://www.selenium.dev/documentation/webdriver/getting_started/first_script/).
+  performs the classic [Selenium smoke
+  test](https://www.selenium.dev/documentation/webdriver/getting_started/first_script/).
 - If it reads "Form submitted", it worked correctly.
 - Now create your own automation scripts!
 
-## Technical details 
+## Technical details
 
 First and foremost, `beachpatrol` contains a customized Playwright script to
 launch your browser. It passes arguments which closely recreate the experience
@@ -90,7 +92,7 @@ automated testing.)
 Beachpatrol also installs and loads the packages `patchright`,
 `playwright-extra` and `puppeteer-extra-plugin-stealth`. This is needed to hide
 the fact that the browser is automated, which in turn is needed for basic
-features such as Google Sign-in. 
+features such as Google Sign-in.
 
 Naturally, the above packages are tangentially related to a cat-and-mouse game
 between web-scrapers and web-masters. As such, they might stop working at any
@@ -138,13 +140,13 @@ Options:
 
 ### Isn't the claim that web browsers aren't automatable a bit far-fetched?
 
-When we say that web browsers aren't automatable, we're thinking more along 
-the lines of the depth of automation available with tools like Bash, Vim or Emacs 
+When we say that web browsers aren't automatable, we're thinking more along the
+lines of the depth of automation available with tools like Bash, Vim or Emacs
 (where virtually every interaction can be scripted and interwoven into custom
 workflows without much resistance.)
 
 Yes, we acknowledge there are existing ways to automate browser tasks like
-autofill, mouse and keyboard macros, bookmarklets, extensions, and of course 
+autofill, mouse and keyboard macros, bookmarklets, extensions, and of course
 various tools like Playwright.
 
 Beachpatrol aspires to bring a new spin to the state-of-the-art, re-imagining
@@ -159,45 +161,68 @@ a UI which is both simple and power-user friendly.
 
 True, but it offers several value-added features:
 
-- **Automation Detection Evasion**: Beachpatrol carefully selects Playwright options and plugins to mirror the activity of a regular browser, helping to avoid detection mechanisms that websites use to identify and block automated browsers.
-- **Client/Server Architecture**: `beachpatrol` launches a browser and listens on a socket. The separate client `beachmsg` can then be used to transmit Playwright commands to the controlled browser. This separation allows for greater flexibility and integration with other tools and scripts.
-- **Browser Extension**: An accompanying browser extension is designed to also communicate with the socket and send commands. The extension provides a user-friendly graphical interface and contextual tools.
+- **Automation Detection Evasion**: Beachpatrol carefully selects Playwright
+  options and plugins to mirror the activity of a regular browser, helping to
+  avoid detection mechanisms that websites use to identify and block automated
+  browsers.
+- **Client/Server Architecture**: `beachpatrol` launches a browser and listens
+  on a socket. The separate client `beachmsg` can then be used to transmit
+  Playwright commands to the controlled browser. This separation allows for
+  greater flexibility and integration with other tools and scripts.
+- **Browser Extension**: An accompanying browser extension is designed to also
+  communicate with the socket and send commands. The extension provides a
+  user-friendly graphical interface and contextual tools.
 
 ### Why Playwright instead of Selenium?
 
 Initial browser launch benchmarks suggested us to prioritize Playwright.
 
-| Browser                  | Launch time |
-|--------------------------|-------------|
-| Playwright Chrome        |       1.7s  |
-| Selenium Node Chrome     |       1.8s  |
-| Selenium Java Chrome     |       4s    |
-| Playwright Firefox       |       4.3s  |
-| Selenium Java Firefox    |       6s    |
-| Selenium Node Firefox    |       9s    |
+| Browser               | Launch time |
+| --------------------- | ----------- |
+| Playwright Chrome     | 1.7s        |
+| Selenium Node Chrome  | 1.8s        |
+| Selenium Java Chrome  | 4s          |
+| Playwright Firefox    | 4.3s        |
+| Selenium Java Firefox | 6s          |
+| Selenium Node Firefox | 9s          |
 
 ### Why JavaScript/Node.js instead of Python?
 
-While Python is a popular language for web automation, we decided for JavaScript 
-to enable code sharing with the browser extension.
+While Python is a popular language for web automation, we decided for
+JavaScript to enable code sharing with the browser extension.
 
 ### Why use an external automation tool (Playwright) instead of a browser extension?
 
-Similar functionality can indeed be achieved with Userscript managers, such as the [Violentmonkey](https://github.com/violentmonkey/violentmonkey) browser extension.
+Similar functionality can indeed be achieved with Userscript managers, such as
+the [Violentmonkey](https://github.com/violentmonkey/violentmonkey) browser
+extension.
 
-But, while Beachpatrol allows us to control the browser from both the OS and a browser
-extension, our priority is the OS. Also, there are [limitations](https://www.sitepoint.com/community/t/tampermonkey-access-local-files-and-commands/299771) on how much you can interact with the OS from a browser extension. Therefore, something like Playwright was
-the natural choice.
+But, while Beachpatrol allows us to control the browser from both the OS and a
+browser extension, our priority is the OS. Also, there are
+[limitations](https://www.sitepoint.com/community/t/tampermonkey-access-local-files-and-commands/299771)
+on how much you can interact with the OS from a browser extension. Therefore,
+something like Playwright was the natural choice.
 
-Furthermore, while controlling the browser from an extension is possible, [Manifest v3 removed the ability to execute third-party strings of code](https://developer.chrome.com/docs/extensions/develop/migrate/improve-security). Popular automation extensions like Greasemonkey and Tampermonkey could also be affected by Manifest v3. The alternative is to embed the code into the extension, but that would require re-bundling the extensions after every change. Other tricks do exist to make this approach work, and there is some hope for [future Manifest v3 solutions](https://github.com/w3c/webextensions/issues/279), but this path is certainly tricky.
+Furthermore, while controlling the browser from an extension is possible,
+[Manifest v3 removed the ability to execute third-party strings of
+code](https://developer.chrome.com/docs/extensions/develop/migrate/improve-security).
+Popular automation extensions like Greasemonkey and Tampermonkey could also be
+affected by Manifest v3. The alternative is to embed the code into the
+extension, but that would require re-bundling the extensions after every
+change. Other tricks do exist to make this approach work, and there is some
+hope for [future Manifest v3
+solutions](https://github.com/w3c/webextensions/issues/279), but this path is
+certainly tricky.
 
-It is more likely that Selenium and related tools will continue to work in the foreseeable future given the business demand for traditional browser testing.
+It is more likely that Selenium and related tools will continue to work in the
+foreseeable future given the business demand for traditional browser testing.
 
 ### How does Beachpatrol compare to bookmarklets for quick tasks?
 
-Bookmarklets are handy for executing scripts with a click, but they are
-limited to user-triggered actions and may not handle complex workflows, such
-as automation based on specific timing or interaction with operating system features.
+Bookmarklets are handy for executing scripts with a click, but they are limited
+to user-triggered actions and may not handle complex workflows, such as
+automation based on specific timing or interaction with operating system
+features.
 
 Plus, there's a personal preference factor. For those who like to have finer
 control, keeping automation scripts within their file system feels cleaner and
@@ -212,16 +237,18 @@ actions and export them as Puppeteer scripts, which use the same API as
 Playwright. Or, you can use the Playwright
 [`codegen`](https://playwright.dev/docs/codegen).
 
-Also, given Playwright's popularity, you can describe your task in natural language
-to an AI and ask for it as a Playwright script. With some practice, this should 
-get you halfway to a working script.
+Also, given Playwright's popularity, you can describe your task in natural
+language to an AI and ask for it as a Playwright script. With some practice,
+this should get you halfway to a working script.
 
 ## Project Status
 
-This project is in **alpha**. 
+This project is in **alpha**.
+
 - The API is subject to change.
 - Currently only Chromium and Firefox are supported.
-- The ability to run a command when a new URL matches a pattern will be added soon.
+- The ability to run a command when a new URL matches a pattern will be added
+  soon.
 - The `beachpatrol-browser-extension` is in early-testing and **not publicly
   released.** It is expected to launch in a fully-functional state by the next
   release.
@@ -241,11 +268,18 @@ This project is in **alpha**.
   Google captchas.
 
 ## You might also like
+
 - [TabFS](https://github.com/osnr/TabFS)
 - [Violentmonkey](https://github.com/violentmonkey/violentmonkey)
 
 ## License
+
 MIT
 
 ## Contributing
-We welcome contributions of all kinds. If you have a suggestion or fix, please feel free to open an issue or pull request.
+
+We welcome contributions of all kinds. If you have a suggestion or fix, please
+feel free to open an issue or pull request.
+
+Formatting with `prettier` (default configuration) isn't enforced but
+appreciated.
