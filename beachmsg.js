@@ -8,18 +8,15 @@ import { fileURLToPath } from "url";
 
 // if --help/-h, print usage
 if (process.argv.includes("--help") || process.argv.includes("-h")) {
-  console.log("Usage: beachmsg <command> [args...]");
-  console.log();
-  console.log(
-    "Sends a command to the beachpatrol server controlling the browser.",
-  );
-  console.log(
-    'The provided command must exist in the "commands" directory of beachpatrol.',
-  );
-  console.log();
-  console.log("Options:");
-  console.log("  --help                    Show this help message");
-  console.log();
+  console.log(`
+Usage: beachmsg <command> [args...]
+
+ - Sends a command to the beachpatrol server controlling the browser.
+ - The provided command must exist in the "commands" directory of beachpatrol.
+
+Options:
+  --help                    Show this help message
+`.trimStart());
   process.exit(0);
 }
 

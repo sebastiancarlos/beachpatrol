@@ -19,28 +19,21 @@ const SUPPORTED_BROWSERS = ["chromium", "firefox"];
 
 // if --help/-h, print usage
 if (process.argv.includes("--help") || process.argv.includes("-h")) {
-  console.log(
-    "Usage: beachpatrol [--profile <profile_name>] [--incognito] [--headless]",
-  );
-  console.log();
-  console.log("Launches a browser with the specified profile.");
-  console.log(
-    "Opens a socket to listen for commands. Commands can be sent with",
-  );
-  console.log("the 'beachmsg' command.");
-  console.log();
-  console.log("Options:");
-  console.log(
-    "  --profile <profile_name>  Use the specified profile. Default: default",
-  );
-  console.log(
-    "  --browser <browser_name>  Use the specified browser. Default: chromium",
-  );
-  console.log(`      Supported browsers: ${SUPPORTED_BROWSERS.join(", ")}`);
-  console.log("  --incognito               Launch browser in incognito mode");
-  console.log("  --headless                Launch browser in headless mode");
-  console.log("  --help                    Show this help message");
-  console.log();
+  console.log(`
+Usage: beachpatrol [--profile <profile_name>] [--incognito] [--headless]
+
+- Launches a browser with the specified profile.
+- Opens a socket to listen for commands. Commands can be sent with the
+  'beachmsg' command.
+
+Options:
+  --profile <profile_name>  Use the specified profile. Default: default
+  --browser <browser_name>  Use the specified browser. Default: chromium
+      Supported browsers: ${SUPPORTED_BROWSERS.join(", ")}
+  --incognito               Launch browser in incognito mode.
+  --headless                Launch browser in headless mode.
+  --help                    Show this help message.
+`.trimStart())
   process.exit(0);
 }
 

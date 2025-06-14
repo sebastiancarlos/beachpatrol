@@ -110,30 +110,30 @@ for messages by `beachmsg`.
 
 ## Usage
 
-```bash
+```
 Usage: beachpatrol [--profile <profile_name>] [--incognito] [--headless]
 
-Launches a browser with the specified profile.
-Opens a socket to listen for commands. Commands can be sent with
-the 'beachmsg' command.
+- Launches a browser with the specified profile.
+- Opens a socket to listen for commands. Commands can be sent with the
+  'beachmsg' command.
 
 Options:
   --profile <profile_name>  Use the specified profile. Default: default
   --browser <browser_name>  Use the specified browser. Default: chromium
       Supported browsers: chromium, firefox
-  --incognito               Launch browser in incognito mode
-  --headless                Launch browser in headless mode
-  --help                    Show this help message
+  --incognito               Launch browser in incognito mode.
+  --headless                Launch browser in headless mode.
+  --help                    Show this help message.
 ```
 
-```bash
+```
 Usage: beachmsg <command> [args...]
 
-Sends a command to the beachpatrol server controlling the browser.
-The provided command must exist in the "commands" directory of beachpatrol.
+ - Sends a command to the beachpatrol server controlling the browser.
+ - The provided command must exist in the "commands" directory of beachpatrol.
 
 Options:
-  --help                    Show this help message
+  --help                    Show this help message.
 ```
 
 ## F.A.Q.
