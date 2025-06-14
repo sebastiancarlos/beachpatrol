@@ -305,6 +305,9 @@ This project is in **alpha**.
   the download functionality itself should work as expected: all downloaded
   files should correctly appear in to the expected folder with the originally
   suggested file name.
+- Due to a Chromium limitation, it is not possible to use the in-browser's
+  profile features to switch profiles. However, this might be fixed in the
+  future.
 - The state-of-the-art stealth plugins are currently only available for
   Chromium. Firefox has slightly less advanced plugins currently, so users
   might encounter some issues such as Cloudflare's false positives, and extra
