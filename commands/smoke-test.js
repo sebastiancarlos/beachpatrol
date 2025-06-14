@@ -30,6 +30,7 @@ export default async (context, ...args) => {
   await submitButton.scrollIntoViewIfNeeded();
   await submitButton.click();
 
+  await page.waitForSelector("#message");
   const message = await page.$("#message");
   console.log(`Message is: ${await message.innerText()}`);
 };
