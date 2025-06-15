@@ -7,7 +7,7 @@ import path from "path";
 import { fileURLToPath, pathToFileURL } from "url";
 
 // chromium-related imports
-import { chromium } from "patchright";
+// import { chromium } from "patchright";
 
 // firefox-related imports
 import { firefox } from "@playwright/test";
