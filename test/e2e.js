@@ -25,7 +25,6 @@ test("Beachpatrol E2E Smoke Test", async (t) => {
   const beachpatrolProcess = spawn("node", [
     BEACHPATROL_PATH,
     "--headless",
-    "--incognito",
     "--browser",
     browser,
   ]);
