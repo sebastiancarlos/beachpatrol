@@ -73,6 +73,8 @@ if (!fs.existsSync(profileDir)) {
   fs.mkdirSync(profileDir, { recursive: true });
 }
 
+console.log('process.argv', process.argv);
+console.log('BROWSER', browser)
 const browserCommand = browser === "chromium" ? chromium : firefox;
 
 // prepare launch options and hide automation
