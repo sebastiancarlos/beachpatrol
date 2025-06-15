@@ -50,7 +50,7 @@ situations (such as pagination and dropdowns), and will support hotkeys:
 ## Requirements
 
 - Linux (Wayland or X11), macOS or Windows
-- Node.js and NPM
+- Node.js LTS (v22)
 - Chromium or Firefox (installed automatically by Playwright)
 
 ## Installation

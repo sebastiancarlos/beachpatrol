@@ -4,8 +4,8 @@
   "description": "A CLI tool meant to replace and automate your everyday web browser.",
   "type": "module",
   "engines": {
-    "node": ">=16.0.0",
-    "npm": ">=8.0.0"
+    "node": ">=22.0.0",
+    "npm": ">=10.0.0"
   },
   "bin": {
     "beachpatrol": "./beachpatrol.js",
