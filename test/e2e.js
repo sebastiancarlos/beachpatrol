@@ -68,12 +68,7 @@ test("Beachpatrol E2E Smoke Test", async (t) => {
 
   // Run the client command
   console.log("   Running beachmsg smoke-test...");
-  let clientResult;
-  try {
-    clientResult = await exec(`node "${BEACHMSG_PATH}" smoke-test`);
-  } catch (err) {
-    throw err;
-  }
+  const clientResult = await exec(`node "${BEACHMSG_PATH}" smoke-test`);
 
   // Check beachmsg (client) output
   assert.strictEqual(
