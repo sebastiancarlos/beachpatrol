@@ -10,7 +10,8 @@ import { fileURLToPath, pathToFileURL } from "url";
 import { chromium } from "patchright";
 
 // firefox-related imports
-import { firefox } from "playwright-extra";
+import { firefox } from "@playwright/test";
+// import { firefox } from "playwright-extra";
 // import StealthPlugin from "puppeteer-extra-plugin-stealth";
 
 const HOME_DIR = os.homedir();
