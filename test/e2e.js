@@ -33,7 +33,6 @@ test("Beachpatrol E2E Smoke Test", async (t) => {
   beachpatrolProcess.stderr.on("data", (data) => {
     const errorMsg = data.toString();
     console.error(`>>> beachpatrol stderr: ${errorMsg}`);
-    stderrOutput += errorMsg;
   });
 
   // on cleanup, kill process and notify handlers with flag
