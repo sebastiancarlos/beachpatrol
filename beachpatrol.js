@@ -11,7 +11,7 @@ import { chromium } from "patchright";
 
 // firefox-related imports
 import { firefox } from "playwright-extra";
-import StealthPlugin from "puppeteer-extra-plugin-stealth";
+// import StealthPlugin from "puppeteer-extra-plugin-stealth";
 
 const HOME_DIR = os.homedir();
 
@@ -96,7 +96,7 @@ if (process.env.XDG_SESSION_TYPE === "wayland") {
 
 // firefox uses "puppeteer-extra-plugin-stealth" because "patchright" doesn't support firefox
 if (browser === "firefox") {
-  browserCommand.use(StealthPlugin());
+  // browserCommand.use(StealthPlugin());
 }
 
 if (incognito) {
