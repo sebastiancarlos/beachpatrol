@@ -5,6 +5,7 @@ import { once, on } from "node:events";
 import { promisify } from "node:util";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { exitCode } from "node:process";
 
 const exec = promisify(execCallback);
 
@@ -28,6 +29,12 @@ test("Beachpatrol E2E Smoke Test", async (t) => {
     "--browser",
     browser,
   ]);
+
+  beachpatrolProcess.stderr.on("data", (data) => {
+    const errorMsg = data.toString();
+    console.error(`>>> beachpatrol stderr: ${errorMsg}`);
+    stderrOutput += errorMsg;
+  });
 
   // on cleanup, kill process and notify handlers with flag
   let exitExpected = false;
@@ -56,9 +63,10 @@ test("Beachpatrol E2E Smoke Test", async (t) => {
         throw new Error("Timeout waiting for server ready.");
       })(),
       (async () => {
-        await once(beachpatrolProcess, "exit");
+        const [exitCode, signal] = await once(beachpatrolProcess, "exit");
         if (!exitExpected) {
-          throw new Error("Beachpatrol process exited unexpectedly");
+          const fullError = `Beachpatrol process exited unexpectedly with code ${exitCode} and signal ${signal}`;
+          throw new Error(fullError);
         }
       })(),
     ]);
