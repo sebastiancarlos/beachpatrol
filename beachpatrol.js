@@ -81,7 +81,7 @@ const launchOptions = {
   args: [],
   ignoreDefaultArgs: ["--enable-automation"], // No "controlled by automation" infobar
 };
-if (process.env.XDG_SESSION_TYPE === "wayland") {
+if (process.env.XDG_SESSION_TYPE === "wayland" && browser === "chromium") {
   // If running on wayland, add the needed chromium wayland flag
   // Source: https://wiki.archlinux.org/title/Chromium#Force_GPU_acceleration
   launchOptions.args.push(
