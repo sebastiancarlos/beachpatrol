@@ -80,6 +80,7 @@ const launchOptions = {
   viewport: null, // Let browser decide viewport
   args: [],
   ignoreDefaultArgs: ["--enable-automation"], // No "controlled by automation" infobar
+  channel: "chromium", // Opt in to the new chromium headless mode
 };
 if (!process.env.CI) {
   // The Chromium sandbox must be disabled for CI to pass
