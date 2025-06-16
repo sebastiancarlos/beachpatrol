@@ -19,7 +19,8 @@ const SUPPORTED_BROWSERS = ["chromium", "firefox"];
 
 // if --help/-h, print usage
 if (process.argv.includes("--help") || process.argv.includes("-h")) {
-  console.log(`
+  console.log(
+    `
 Usage: beachpatrol [--profile <profile_name>] [--incognito] [--headless]
 
 - Launches a browser with the specified profile.
@@ -33,7 +34,8 @@ Options:
   --incognito               Launch browser in incognito mode.
   --headless                Launch browser in headless mode.
   --help                    Show this help message.
-`.trimStart())
+`.trimStart(),
+  );
   process.exit(0);
 }
 
@@ -85,17 +87,21 @@ if (!process.env.CI) {
   // The Chromium sandbox must be disabled for CI to pass
   launchOptions["chromiumSandbox"] = true;
 }
-if (process.env.XDG_SESSION_TYPE === "wayland" && browser === "chromium") {
-  // If running on wayland, add the needed chromium wayland flag
-  // Source: https://wiki.archlinux.org/title/Chromium#Force_GPU_acceleration
-  launchOptions.args.push(
-    ...[
-      "--ozone-platform-hint=auto",
-      "--enable-features=AcceleratedVideoDecodeLinuxGL",
-      "--use-gl=angle",
-      "--use-angle=vulkan",
-    ],
-  );
+if (browser === "chromium") {
+  launchOptions.channel = "chromium"; // Opt in to the new chromium headless mode
+
+  if (process.env.XDG_SESSION_TYPE === "wayland") {
+    // If running on wayland, add the needed chromium wayland flag
+    // Source: https://wiki.archlinux.org/title/Chromium#Force_GPU_acceleration
+    launchOptions.args.push(
+      ...[
+        "--ozone-platform-hint=auto",
+        "--enable-features=AcceleratedVideoDecodeLinuxGL",
+        "--use-gl=angle",
+        "--use-angle=vulkan",
+      ],
+    );
+  }
 }
 
 // firefox uses "puppeteer-extra-plugin-stealth" because "patchright" doesn't support firefox
