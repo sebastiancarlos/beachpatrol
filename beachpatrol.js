@@ -81,6 +81,10 @@ const launchOptions = {
   args: [],
   ignoreDefaultArgs: ["--enable-automation"], // No "controlled by automation" infobar
 };
+if (!process.env.CI) {
+  // The Chromium sandbox must be disabled for CI to pass
+  launchOptions["chromiumSandbox"] = true;
+}
 if (process.env.XDG_SESSION_TYPE === "wayland" && browser === "chromium") {
   // If running on wayland, add the needed chromium wayland flag
   // Source: https://wiki.archlinux.org/title/Chromium#Force_GPU_acceleration
