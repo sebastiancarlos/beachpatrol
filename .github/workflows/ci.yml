@@ -35,8 +35,9 @@ jobs:
         with:
           path: |
             ~/.cache/ms-playwright
-            %LOCALAPPDATA%/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
+            ~/Library/Caches/ms-playwright
+            ~\AppData\Local\ms-playwright
+          key: playwright-${{ matrix.os }}-${{ matrix.browser }}-${{ hashFiles('**/package-lock.json') }}
 
       - name: Build Project
         run: npm ci
