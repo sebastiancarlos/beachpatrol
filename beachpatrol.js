@@ -14,6 +14,7 @@ import { firefox } from "playwright-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 
 const HOME_DIR = os.homedir();
+const PROJECT_ROOT = path.dirname(fileURLToPath(import.meta.url));
 
 const SUPPORTED_BROWSERS = ["chromium", "firefox"];
 
@@ -34,8 +35,18 @@ Options:
   --incognito               Launch browser in incognito mode.
   --headless                Launch browser in headless mode.
   --help                    Show this help message.
+  --version                 Show version. 
 `.trimStart(),
   );
+  process.exit(0);
+}
+
+// handle --version/-v
+if (process.argv.includes("--version") || process.argv.includes("-v")) {
+  // get version from package.json
+  const packageJsonPath = path.join(PROJECT_ROOT, "package.json");
+  const version = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8")).version;
+  console.log(`v${version}`);
   process.exit(0);
 }
 
@@ -228,9 +239,8 @@ const server = createServer((socket) => {
     }
 
     const COMMANDS_DIR = "commands";
-    const projectRoot = path.dirname(fileURLToPath(import.meta.url));
     const commandFilePath = path.join(
-      projectRoot,
+      PROJECT_ROOT,
       COMMANDS_DIR,
       `${commandName}.js`,
     );

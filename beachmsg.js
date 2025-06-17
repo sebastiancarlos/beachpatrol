@@ -6,6 +6,9 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
+const HOME_DIR = os.homedir();
+const PROJECT_ROOT = path.dirname(fileURLToPath(import.meta.url));
+
 // if --help/-h, print usage
 if (process.argv.includes("--help") || process.argv.includes("-h")) {
   console.log(`
@@ -15,8 +18,18 @@ Usage: beachmsg <command> [args...]
  - The provided command must exist in the "commands" directory of beachpatrol.
 
 Options:
-  --help                    Show this help message
+  --help                    Show this help message.
+  --version                 Show version.
 `.trimStart());
+  process.exit(0);
+}
+
+// handle --version/-v
+if (process.argv.includes("--version") || process.argv.includes("-v")) {
+  // get version from package.json
+  const packageJsonPath = path.join(PROJECT_ROOT, "package.json");
+  const version = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8")).version;
+  console.log(`v${version}`);
   process.exit(0);
 }
 
@@ -30,9 +43,8 @@ const [, , commandName, ...args] = process.argv;
 
 // Check if command script exists
 const COMMANDS_DIR = "commands";
-const projectRoot = path.dirname(fileURLToPath(import.meta.url));
 const commandFilePath = path.join(
-  projectRoot,
+  PROJECT_ROOT,
   COMMANDS_DIR,
   `${commandName}.js`,
 );
@@ -44,7 +56,6 @@ if (!fs.existsSync(commandFilePath)) {
 // Send command and args
 let endpoint;
 if (process.platform !== "win32") {
-  const HOME_DIR = os.homedir();
   const DATA_DIR =
     process.env.XDG_DATA_HOME || path.join(HOME_DIR, ".local/share");
   endpoint = `${DATA_DIR}/beachpatrol/beachpatrol.sock`;
