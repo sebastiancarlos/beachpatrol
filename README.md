@@ -202,7 +202,7 @@ a UI which is both simple and power-user friendly.
 
 ### But what’s the point? Isn’t Beachpatrol just a wrapper around a Playwright browser?
 
-True, but it offers several value-added features:
+True, but it offers several value-added features, including:
 
 - **Automation Detection Evasion**: Beachpatrol carefully selects Playwright
   options and plugins to mirror the activity of a regular browser, helping to
@@ -259,6 +259,16 @@ certainly tricky.
 
 It is more likely that Selenium and related tools will continue to work in the
 foreseeable future given the business demand for traditional browser testing.
+
+### Why Playwright instead of directly using Chrome DevTools Protocol or WebDriver?
+
+While direct protocol communication is possible, Playwright provides a
+well-regarded, higher-level API with built-in features like automatic waiting,
+RPC object references (JSHandle), and cross-browser support.
+
+Direct protocol communication would require implementing these features
+manually over what is essentially a message-passing interface, significantly
+increasing complexity.
 
 ### How does Beachpatrol compare to bookmarklets for quick tasks?
 
