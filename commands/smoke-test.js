@@ -23,14 +23,13 @@ export default async (context, ...args) => {
   const title = await page.title();
   console.log(`Title is: ${title}`);
 
-  const textBox = await page.$("input[name=my-text]");
-  const submitButton = await page.$("button");
+  const textBox = await page.locator("input[name=my-text]");
+  const submitButton = await page.locator("button");
 
-  await textBox.type("Playwright");
+  await textBox.fill("Playwright");
   await submitButton.scrollIntoViewIfNeeded();
   await submitButton.click();
 
-  await page.waitForSelector("#message");
-  const message = await page.$("#message");
+  const message = await page.locator("#message");
   console.log(`Message is: ${await message.innerText()}`);
 };
