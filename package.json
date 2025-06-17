@@ -1,6 +1,6 @@
 {
   "name": "beachpatrol",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "A CLI tool meant to replace and automate your everyday web browser.",
   "type": "module",
   "engines": {
