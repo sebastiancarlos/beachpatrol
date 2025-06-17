@@ -44,7 +44,7 @@ jobs:
 
       - name: Install Playwright browsers (and their OS dependencies)
         # It should not re-download if browsers exist.
-        run: npx playwright install --with-deps ${{ matrix.browser }}
+        run: npx playwright install --with-deps --no-shell ${{ matrix.browser }}
 
       - name: Run tests
         run: npm test

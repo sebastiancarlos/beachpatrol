@@ -75,7 +75,7 @@ const getBrowserToInstall = async () => {
 };
 
 if ((await getInstalledBrowsers()).length === 0) {
-  execSync(`playwright install ${(await getBrowserToInstall()).join(" ")}`, {
+  execSync(`playwright install --with-deps --no-shell ${(await getBrowserToInstall()).join(" ")}`, {
     stdio: "inherit",
   });
 }
