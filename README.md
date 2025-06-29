@@ -1,10 +1,29 @@
-# Beachpatrol: Browser's End-user Automation CLI Hub. Potentialize All Tasks Regarding Online Life.
+# Beachpatrol: Browser's End-user Automation CLI Hub. Potentialize All Tasks Regarding Online Life. <!-- omit in toc -->
 
 <p align="center">
   <img src="https://github.com/sebastiancarlos/beachpatrol/assets/88276600/49fbdf4f-eeec-42f8-a0aa-dd1c1c6c1617">
 </p>
 
 _Essential software should be fully automatable. Web browsers aren't. Let's change that._
+
+- [Introduction](#introduction)
+  - [What can you automate with Beachpatrol? The sky is the limit:](#what-can-you-automate-with-beachpatrol-the-sky-is-the-limit)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Example](#example)
+  - [Writing Your First Command](#writing-your-first-command)
+- [Available Commands](#available-commands)
+  - [Built-in Commands](#built-in-commands)
+  - [Command Ideas and Examples](#command-ideas-and-examples)
+  - [Command Structure](#command-structure)
+- [Technical details](#technical-details)
+- [Usage](#usage)
+- [F.A.Q.](#faq)
+- [Project Status](#project-status)
+- [Known Issues](#known-issues)
+- [You might also like](#you-might-also-like)
+- [License](#license)
+- [Contributing](#contributing)
 
 ## Introduction
 
@@ -71,10 +90,9 @@ situations (such as pagination and dropdowns), and will support hotkeys:
   - If you close it. Run `beachpatrol` again and you should still be logged-in
     to all your sites.
   - If you want a different profile, use `beachpatrol --profile
-    new-profile-name`
-    - Note: Due to a Chromium's limitation, it is not possible to use the
-      in-browser's profile features to switch profiles. However, this might be
-      fixed in the future.
+new-profile-name` - Note: Due to a Chromium's limitation, it is not possible to use the
+    in-browser's profile features to switch profiles. However, this might be
+    fixed in the future.
 - Run `beachmsg smoke-test` to run the pre-installed test command, which
   performs the classic [Selenium smoke
   test](https://www.selenium.dev/documentation/webdriver/getting_started/first_script/).
@@ -90,7 +108,9 @@ file (relative to the cloned repo directory) with the following content:
 export default async (context, ...searchTerms) => {
   const page = await context.newPage();
   await page.goto(
-    `https://www.google.com/search?q=${encodeURIComponent(searchTerms.join(" "))}`,
+    `https://www.google.com/search?q=${encodeURIComponent(
+      searchTerms.join(" ")
+    )}`
   );
 };
 ```
@@ -99,6 +119,7 @@ Every Beachpatrol command must export a default async function, which is the
 entry point of your command.
 
 The function should take:
+
 - The Playwright browser context as its first argument, and
 - the arguments to the command, if any.
 
@@ -137,41 +158,49 @@ Beachpatrol comes with built-in commands and supports custom commands you create
 Here are examples of commands you can create in the `commands/` directory:
 
 **Web Search (`commands/search.js`):**
+
 ```bash
 beachmsg search "playwright documentation"
 ```
 
 **Save Page Content (`commands/save-text.js`):**
+
 ```bash
 beachmsg save-text filename.txt
 ```
 
 **Fill Forms (`commands/fill-form.js`):**
+
 ```bash
 beachmsg fill-form "name:John Doe" "email:john@example.com"
 ```
 
 **Take Screenshot (`commands/screenshot.js`):**
+
 ```bash
 beachmsg screenshot page-capture.png
 ```
 
 **Extract Data (`commands/extract-prices.js`):**
+
 ```bash
 beachmsg extract-prices ecommerce-url.com
 ```
 
 **Social Media Automation (`commands/post-update.js`):**
+
 ```bash
 beachmsg post-update "Hello from automation!"
 ```
 
 **Download Files (`commands/download-report.js`):**
+
 ```bash
 beachmsg download-report quarterly-report
 ```
 
 **Navigation Automation (`commands/navigate-workflow.js`):**
+
 ```bash
 beachmsg navigate-workflow dashboard login-check
 ```
@@ -179,19 +208,20 @@ beachmsg navigate-workflow dashboard login-check
 ### Command Structure
 
 All commands follow this pattern:
+
 ```javascript
 // commands/your-command.js
 export default async (context, ...args) => {
   // context = Playwright BrowserContext
   // args = command-line arguments passed to beachmsg
-  
+
   // Example: Work with current tab
   const pages = context.pages();
   const currentPage = pages[0];
-  
+
   // Example: Create new tab
   const newPage = await context.newPage();
-  await newPage.goto('https://example.com');
+  await newPage.goto("https://example.com");
 };
 ```
 
@@ -254,7 +284,7 @@ Options:
 
 ## F.A.Q.
 
-### Isn't the claim that web browsers aren't automatable a bit far-fetched?
+### Isn't the claim that web browsers aren't automatable a bit far-fetched? <!-- omit in toc -->
 
 When we say that web browsers aren't automatable, we're thinking more along the
 lines of the depth of automation available with tools like Bash, Vim or Emacs
@@ -273,7 +303,7 @@ In short, our aim is to take existing automation tools (currently designed for
 testing or scraping) and tweak them for everyday browsing, while also providing
 a UI which is both simple and power-user friendly.
 
-### But what’s the point? Isn’t Beachpatrol just a wrapper around a Playwright browser?
+### But what’s the point? Isn’t Beachpatrol just a wrapper around a Playwright browser? <!-- omit in toc -->
 
 True, but it offers several value-added features, including:
 
@@ -289,7 +319,7 @@ True, but it offers several value-added features, including:
   communicate with the socket and send commands. The extension provides a
   user-friendly graphical interface and contextual tools.
 
-### Why Playwright instead of Selenium?
+### Why Playwright instead of Selenium? <!-- omit in toc -->
 
 Initial browser launch benchmarks suggested us to prioritize Playwright.
 
@@ -302,12 +332,12 @@ Initial browser launch benchmarks suggested us to prioritize Playwright.
 | Selenium Java Firefox | 6s          |
 | Selenium Node Firefox | 9s          |
 
-### Why JavaScript/Node.js instead of Python?
+### Why JavaScript/Node.js instead of Python? <!-- omit in toc -->
 
 While Python is a popular language for web automation, we decided for
 JavaScript to enable code sharing with the browser extension.
 
-### Why use an external automation tool (Playwright) instead of a browser extension?
+### Why use an external automation tool (Playwright) instead of a browser extension? <!-- omit in toc -->
 
 Similar functionality can indeed be achieved with Userscript managers, such as
 the [Violentmonkey](https://github.com/violentmonkey/violentmonkey) browser
@@ -333,7 +363,7 @@ certainly tricky.
 It is more likely that Selenium and related tools will continue to work in the
 foreseeable future given the business demand for traditional browser testing.
 
-### Why Playwright instead of directly using Chrome DevTools Protocol or WebDriver?
+### Why Playwright instead of directly using Chrome DevTools Protocol or WebDriver? <!-- omit in toc -->
 
 While direct protocol communication is possible, Playwright provides a
 well-regarded, higher-level API with built-in features like automatic waiting,
@@ -343,7 +373,7 @@ Direct protocol communication would require implementing these features
 manually over what is essentially a message-passing interface, significantly
 increasing complexity.
 
-### How does Beachpatrol compare to bookmarklets for quick tasks?
+### How does Beachpatrol compare to bookmarklets for quick tasks? <!-- omit in toc -->
 
 Bookmarklets are handy for executing scripts with a click, but they are limited
 to user-triggered actions and may not handle complex workflows, such as
@@ -355,7 +385,7 @@ control, keeping automation scripts within their file system feels cleaner and
 less bound to a particular browser ecosystem. However, we recognize that
 bookmarklets have their place and can be the preferred choice for many users.
 
-### Writing Playwright scripts for every task takes too long.
+### Writing Playwright scripts for every task takes too long. <!-- omit in toc -->
 
 You can use [Chromium DevDool's Recorder
 tab](https://developer.chrome.com/docs/devtools/recorder/reference) to record
