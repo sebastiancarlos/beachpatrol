@@ -124,6 +124,79 @@ You can always look at the built-in
 [`commands/smoke-test.js`](https://github.com/sebastiancarlos/beachpatrol/blob/main/commands/smoke-test.js)
 command for inspiration.
 
+## Available Commands
+
+Beachpatrol comes with built-in commands and supports custom commands you create:
+
+### Built-in Commands
+
+- `beachmsg smoke-test` - Runs the classic Selenium smoke test (fills out a form at selenium.dev)
+
+### Command Ideas and Examples
+
+Here are examples of commands you can create in the `commands/` directory:
+
+**Web Search (`commands/search.js`):**
+```bash
+beachmsg search "playwright documentation"
+```
+
+**Save Page Content (`commands/save-text.js`):**
+```bash
+beachmsg save-text filename.txt
+```
+
+**Fill Forms (`commands/fill-form.js`):**
+```bash
+beachmsg fill-form "name:John Doe" "email:john@example.com"
+```
+
+**Take Screenshot (`commands/screenshot.js`):**
+```bash
+beachmsg screenshot page-capture.png
+```
+
+**Extract Data (`commands/extract-prices.js`):**
+```bash
+beachmsg extract-prices ecommerce-url.com
+```
+
+**Social Media Automation (`commands/post-update.js`):**
+```bash
+beachmsg post-update "Hello from automation!"
+```
+
+**Download Files (`commands/download-report.js`):**
+```bash
+beachmsg download-report quarterly-report
+```
+
+**Navigation Automation (`commands/navigate-workflow.js`):**
+```bash
+beachmsg navigate-workflow dashboard login-check
+```
+
+### Command Structure
+
+All commands follow this pattern:
+```javascript
+// commands/your-command.js
+export default async (context, ...args) => {
+  // context = Playwright BrowserContext
+  // args = command-line arguments passed to beachmsg
+  
+  // Example: Work with current tab
+  const pages = context.pages();
+  const currentPage = pages[0];
+  
+  // Example: Create new tab
+  const newPage = await context.newPage();
+  await newPage.goto('https://example.com');
+};
+```
+
+Commands are automatically discovered from the `commands/` directory and can be executed immediately without restarting the browser server.
+
 ## Technical details
 
 First and foremost, `beachpatrol` contains a customized Playwright script to
