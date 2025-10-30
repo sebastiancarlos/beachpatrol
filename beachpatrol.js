@@ -101,6 +101,28 @@ if (!process.env.CI) {
 if (browser === "chromium") {
   launchOptions.channel = "chromium"; // Opt in to the new chromium headless mode
 
+  // Playwright doesn't support keeping track of the active browser page.
+  // - Source: https://github.com/microsoft/playwright/issues/31890
+  //
+  // To work around this, we use a custom browser extension that detects active tab
+  // changes, and notifies Playwright via a fake fetch request which we intercept (see later).
+  //
+  // Unfortunately, Playwright doesn't support adding extensions for Firefox.
+  // - Source: https://playwright.dev/docs/chrome-extensions
+  // - There are workarounds (https://github.com/ueokande/playwright-webextext), but these
+  //   don't preserve the stealth features of the StealthPlugin.
+  // - Despite that, we eventually plan to support active tab tracking in Firefox. The way to
+  //   achieve it would be to incorporate them into our full-fledged
+  //   `beachpatrol-browser-extension`, which can then be installed from the browser's
+  //   extension store.
+  const extensionPath = path.join(PROJECT_ROOT, "playwright-active-page-extension");
+  launchOptions.args.push(
+    // If we were using plain Playwright, we would also need to pass a 
+    // `--disable-extensions-except` flag too, but this is not needed with Patchright as
+    // extensions are enabled.
+    `--load-extension=${extensionPath}`
+  );
+
   if (process.env.XDG_SESSION_TYPE === "wayland") {
     // If running on wayland, add the needed chromium wayland flag
     // Source: https://wiki.archlinux.org/title/Chromium#Force_GPU_acceleration
@@ -171,7 +193,8 @@ if (!fs.existsSync(DOWNLOAD_DIR)) {
 // Handler for file downloads.
 // - By default, Playwright intercepts native downloads and stores the files with UUID names
 //   in the /tmp folder which is deleted after closing the browser.
-// - To get a close-to-native behavior, we use our own download handler.
+//   - Source: https://github.com/microsoft/playwright/issues/35415
+// - To get a close-to-native behavior, we use this custom download handler.
 const handleDownload = async (download) => {
   let filename = download.suggestedFilename();
   console.log(`Got download event for: ${filename}`);
@@ -199,20 +222,51 @@ const handleDownload = async (download) => {
   }
 };
 
-// As the download event is triggered by Page objects, we need to attach our handler to existing
-// and new pages.
-browserContext.pages().forEach((page) => {
+// Track the active page (the last focused tab in the browser).
+// - Note: This will (currently) always be null for Firefox.
+let activePage = null;
+
+// Setup custom Beachpatrol functionality for each page
+const setupPage = async (page) => {
+  // Attach download handler
   page.on("download", handleDownload);
-});
+
+  // Intercept fake fetch requests from our web extension to detect page activation.
+  // - The extension makes a fetch request when a page becomes active, which we intercept here
+  // - This approach works cross-browser and bypasses Patchright's console/evaluate limitations,
+  //   which would have been the preferred method for this feature.
+  //   - Source: https://github.com/Kaliiiiiiiiii-Vinyzu/patchright/issues/30
+  await page.route('https://playwright-active-page', async (route) => {
+    // This page became active, track it.
+    activePage = page;
+
+    // Fulfill the request so it doesn't fail
+    await route.fulfill({ status: 200 });
+  });
+
+  // Unset activePage when a page closes.
+  page.on('close', () => {
+    if (activePage === page) {
+      activePage = null;
+    }
+  });
+};
+
+// Setup for existing pages
+for (const page of browserContext.pages()) {
+  await setupPage(page);
+}
+
+// Setup for new pages
 browserContext.on("page", async (page) => {
-  page.on("download", handleDownload);
+  await setupPage(page);
 });
 
 const DATA_DIR =
   process.env.XDG_DATA_HOME || path.join(HOME_DIR, ".local/share");
 const SOCKET_DIR = `${DATA_DIR}/beachpatrol`;
 const SOCKET_PATH = `${SOCKET_DIR}/beachpatrol.sock`;
-const NAMED_PIPE = String.raw`\\.\pipe\beachpatrol`;
+const WINDOWS_NAMED_PIPE = String.raw`\\.\pipe\beachpatrol`;
 const usingUnixDomainSocket = process.platform !== "win32";
 if (usingUnixDomainSocket) {
   // prepare UNIX socket to listen for commands
@@ -262,7 +316,8 @@ const server = createServer((socket) => {
           `${moduleURL}?t=${Date.now()}`
         );
 
-        await command(browserContext, ...args);
+        // Run command, passing `{ context, activePage }` as first argument
+        await command({ context: browserContext, activePage }, ...args);
         const SUCCESS_MESSAGE = "Command executed successfully.";
         console.log(SUCCESS_MESSAGE);
         socket.write(`${SUCCESS_MESSAGE}\n`);
@@ -275,7 +330,7 @@ const server = createServer((socket) => {
   });
 });
 
-let endpoint = usingUnixDomainSocket ? SOCKET_PATH : NAMED_PIPE;
+let endpoint = usingUnixDomainSocket ? SOCKET_PATH : WINDOWS_NAMED_PIPE;
 server.listen(endpoint);
 console.log(`beachpatrol listening on ${endpoint}`);
 

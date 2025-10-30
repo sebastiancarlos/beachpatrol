@@ -87,7 +87,7 @@ Suppose you want to automate web search. You can create a `commands/search.js`
 file (relative to the cloned repo directory) with the following content:
 
 ```javascript
-export default async (context, ...searchTerms) => {
+export default async ({ context, activePage }, ...searchTerms) => {
   const page = await context.newPage();
   await page.goto(
     `https://www.google.com/search?q=${encodeURIComponent(searchTerms.join(" "))}`,
@@ -99,11 +99,12 @@ Every Beachpatrol command must export a default async function, which is the
 entry point of your command.
 
 The function should take:
-- The Playwright browser context as its first argument, and
-- the arguments to the command, if any.
+- An object containing `{ context, activePage }` as its first argument, where:
+  - `context` is the Playwright [BrowserContext](https://playwright.dev/docs/api/class-browsercontext)
+  - `activePage` is the currently focused [Page](https://playwright.dev/docs/api/class-page) object, or `null`
+- The arguments to the command, if any.
 
-Then, you simply automate the browser by interacting with the [BrowserContext
-API](https://playwright.dev/docs/api/class-browsercontext).
+Then, you simply automate the browser by interacting with the Playwright API.
 
 The `search.js` command above opens a new tab (`context.newPage()`), performs
 the task, and leaves it focused. Other possible commands might work on the
@@ -322,6 +323,9 @@ This project is in **alpha**.
   Chromium. Firefox has slightly less advanced plugins currently, so users
   might encounter some issues such as Cloudflare's false positives, and extra
   Google captchas.
+- Active page detection (tracking which tab is currently focused) only works
+  with Chromium. Firefox support is planned for a future browser extension
+  release. For now, `activePage` will always be `null` when using Firefox.
 
 ## You might also like
 
