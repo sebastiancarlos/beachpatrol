@@ -1,4 +1,4 @@
-// Peform the classic Selenium smoke test, as described in:
+// Perform the classic Selenium smoke test, as described in:
 // https://github.com/SeleniumHQ/seleniumhq.github.io/blob/trunk/examples/javascript/test/getting_started/firstScript.spec.js
 
 // Counteracts some websites, for example bootstrap ones, which have smooth scrolling.
@@ -10,11 +10,11 @@ const forceInstantScroll = async (page) => {
 };
 
 // Every beachpatrol command must export a default async function which takes:
-//   - The Playwright browser context as its first argument, and
+//   - An object with { context, activePage } as its first argument, and
 //   - the arguments to the command.
 // Then, you simply automate the browser by interacting with the BrowserContext API.
 //   - Docs: https://playwright.dev/docs/api/class-browsercontext
-export default async (context, ...args) => {
+export default async ({ context, activePage }, ...args) => {
   const page = await context.newPage();
   await page.goto("https://www.selenium.dev/selenium/web/web-form.html");
 

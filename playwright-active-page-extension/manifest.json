@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Playwright Active Page Extension",
+  "version": "0.0.6",
+  "description": "Reports the browser's active page to Playwright via network interception.",
+  "homepage_url": "https://github.com/sebastiancarlos/beachpatrol",
+  "incognito": "spanning",
+  "permissions": ["tabs"],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "playwright-active-page-extension@sebastiancarlos.github.io",
+      "strict_min_version": "109.0"
+    }
+  },
+  "background": {
+    "service_worker": "background.js",
+    "scripts": ["background.js"],
+    "type": "module",
+    "persistent": false
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["contentScript.js"]
+    }
+  ]
+}
