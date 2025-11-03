@@ -1,0 +1,57 @@
+services:
+  beachpatrol:
+    user: "5555:5555"
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: beachpatrol
+    restart: unless-stopped
+    working_dir: /app
+    ipc: host
+    init: true
+    
+    # ✅ Commande explicite
+    command: ["node", "beachpatrol.js", "--headless"]
+    
+    environment:
+      HOME: "/data"
+      BP_BROWSER: "chromium"
+      BP_HEADLESS: "true"
+      BP_CHROMIUM_SANDBOX: "false"
+      BP_PROFILE_DIR: "/data/profiles/default"
+      BP_DOWNLOADS_DIR: "/data/downloads"
+      XDG_DOWNLOAD_DIR: "/data/downloads"
+      XDG_DATA_HOME: "/data/.local/share"
+      XDG_CONFIG_HOME: "/data/.config"
+      XDG_CACHE_HOME: "/data/.cache"
+      BP_CHROMIUM_ARGS: "--disable-features=Crashpad --disable-crash-reporter"
+      BP_SOCKET: "0.0.0.0:9321"
+      BP_HTTP_PORT: "9322"
+      BP_WRITE_FILES: "1"
+      BP_COPY_LINKS: "1"
+      BP_FOLLOW_REPLIES: "1"
+      BP_LOG_TOKEN: "masked"
+      BP_VALIDATE_TOKEN: "false"
+      BP_CONSOLE_MAINFRAME_ONLY: "true"
+      BP_CONSOLE_DEDUP_TTL_MS: "3000"
+      BP_IGNORE_CONSOLE: ""
+
+    volumes:
+      - ./downloads:/data/downloads
+      - ./profiles:/data/profiles
+      - ../commands:/app/commands:ro
+
+    tmpfs:
+      - /data/.local:size=100M,mode=1777
+      - /data/.config:size=50M,mode=1777
+      - /data/.cache:size=500M,mode=1777
+
+    ports:
+      - "127.0.0.1:9321:9321"
+      - "127.0.0.1:9322:9322"
+
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 9321 || exit 1"]
+      interval: 20s
+      timeout: 3s
+      retries: 3
