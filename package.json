@@ -23,9 +23,10 @@
     "url": "git+https://github.com/sebastiancarlos/beachpatrol.git"
   },
   "dependencies": {
-    "@playwright/test": "^1.63.0",
-    "patchright": "^1.62.3",
-    "playwright-extra": "^4.3.6",
-    "puppeteer-extra-plugin-stealth": "^2.11.2"
+    "@playwright/test": "1.62.1",
+    "patchright": "1.62.3",
+    "playwright": "1.62.1",
+    "playwright-extra": "4.3.6",
+    "puppeteer-extra-plugin-stealth": "2.11.2"
   }
 }

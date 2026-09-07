@@ -15,18 +15,18 @@ const getInstalledBrowsers = async () => {
   // Parse output of `playwright install --dry-run` to get install path of browsers.
   // The output has the format:
   // ```
-  // browser: <browser name> <version info>
+  // Chrome for Testing 151.0.7922.34 (playwright chromium v1234)
   //    Install location: <path>
   //    <more info>
   //    <more info>
   // ```
-  const playwRightDryInstallOutput = execSync(
+  const playWrightDryInstallOutput = execSync(
     "playwright install --dry-run",
   ).toString();
-  const regex = /browser: (\w+)[^\n]*\n\s+Install location:\s+([^\n]*)/gm;
+  const regex = /playwright ([\w-]+) v\d+[^\n]*\n\s+Install location:\s+([^\n]*)/gm;
   let match;
   const locations = {};
-  while ((match = regex.exec(playwRightDryInstallOutput)) !== null) {
+  while ((match = regex.exec(playWrightDryInstallOutput)) !== null) {
     const browserName = match[1];
     const installPath = match[2];
     if (SUPPORTED_BROWSERS.includes(browserName)) {
