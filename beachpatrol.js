@@ -127,12 +127,7 @@ if (browser === "chromium") {
     // If running on wayland, add the needed chromium wayland flag
     // Source: https://wiki.archlinux.org/title/Chromium#Force_GPU_acceleration
     launchOptions.args.push(
-      ...[
-        "--ozone-platform-hint=auto",
-        "--enable-features=AcceleratedVideoDecodeLinuxGL",
-        "--use-gl=angle",
-        "--use-angle=vulkan",
-      ],
+      ...["--ozone-platform-hint=auto"],
     );
   }
 }
