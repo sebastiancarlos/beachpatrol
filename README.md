@@ -149,8 +149,10 @@ doesn't support Firefox. We use `puppeteer-extra-plugin-stealth` for Firefox,
 which might encounter some issues such as Cloudflare's false positives, and
 extra Google captchas.
 
-After the browser is launched, it listens on a UNIX socket, `beachpatrol.sock`,
-for messages by `beachmsg`.
+After the browser is launched, it listens on a UNIX socket for messages by
+`beachmsg`. Each browser/profile(/incognito) combination gets its own socket
+(`<browser>-<profile>[-incognito].sock`), so multiple instances can run at
+once and `beachmsg` routes each command to the right one.
 
 ## Usage
 
@@ -171,10 +173,16 @@ Options:
 ```
 
 ```
-Usage: beachmsg <command> [args...]
+Usage: beachmsg [ROUTE FLAGS] <command> [args...]
 
- - Sends a command to the beachpatrol server controlling the browser.
- - The provided command must exist in the "commands" directory of beachpatrol.
+- Sends a command to the beachpatrol server controlling the browser.
+- The provided command must exist in the "commands" directory of beachpatrol.
+
+ROUTE FLAGS:
+  --browser <name>          Target browser. Default: chromium
+      Supported browsers: chromium, firefox
+  --profile <name>          Target profile. Default: default
+  --incognito               Target the incognito instance.
 
 Options:
   --help                    Show this help message.

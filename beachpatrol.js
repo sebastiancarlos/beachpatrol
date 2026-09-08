@@ -145,6 +145,99 @@ if (incognito) {
   }
 }
 
+const DATA_DIR =
+  process.env.XDG_DATA_HOME || path.join(HOME_DIR, ".local/share");
+const SOCKET_DIR = `${DATA_DIR}/beachpatrol`;
+const SOCKET_NAME = `${browser}-${profileName}${incognito ? "-incognito" : ""}`;
+const SOCKET_PATH = `${SOCKET_DIR}/${SOCKET_NAME}.sock`;
+const WINDOWS_NAMED_PIPE = String.raw`\\.\pipe\beachpatrol`;
+const usingUnixDomainSocket = process.platform !== "win32";
+
+let browserContext;
+let activePage = null;
+
+// Listen for commands
+const server = createServer((socket) => {
+  socket.on("data", async (data) => {
+    const message = JSON.parse(data.toString());
+    const [commandName, ...args] = message;
+
+    // Sanitize commandName
+    if (commandName.includes("..")) {
+      const ERROR_MESSAGE = `Error: Invalid command name '${commandName}'. No path traversal allowed.`;
+      console.log(ERROR_MESSAGE);
+      socket.write(`${ERROR_MESSAGE}\n`);
+      return;
+    }
+
+    // A command may arrive before the browser is ready; ask the client to retry.
+    if (!browserContext) {
+      const ERROR_MESSAGE = "Error: Browser is still starting. Please retry.";
+      console.log(ERROR_MESSAGE);
+      socket.write(`${ERROR_MESSAGE}\n`);
+      return;
+    }
+
+    const COMMANDS_DIR = "commands";
+    const commandFilePath = path.join(
+      PROJECT_ROOT,
+      COMMANDS_DIR,
+      `${commandName}.js`,
+    );
+
+    // log command
+    console.log(`Received command: ${commandName} ${args.join(" ")}`);
+
+    // Check if command script exists.
+    if (!fs.existsSync(commandFilePath)) {
+      const ERROR_MESSAGE = `Error: Command script ${commandName}.js does not exist.`;
+      console.log(ERROR_MESSAGE);
+      socket.write(`${ERROR_MESSAGE}\n`);
+    } else {
+      // Import and run the command
+      try {
+        // import with a timestamp to avoid caching
+        const moduleURL = pathToFileURL(commandFilePath).href;
+        const { default: command } = await import(
+          `${moduleURL}?t=${Date.now()}`
+        );
+
+        // Run command, passing `{ context, activePage }` as first argument
+        await command({ context: browserContext, activePage }, ...args);
+        const SUCCESS_MESSAGE = "Command executed successfully.";
+        console.log(SUCCESS_MESSAGE);
+        socket.write(`${SUCCESS_MESSAGE}\n`);
+      } catch (error) {
+        const ERROR_MESSAGE = `Error: Failed to execute command. ${error.message}`;
+        console.log(ERROR_MESSAGE);
+        socket.write(`${ERROR_MESSAGE}\n`);
+      }
+    }
+  });
+});
+
+// Claim the socket before launching the browser. If the bind fails, another
+// instance owns this profile slot.
+const endpoint = usingUnixDomainSocket ? SOCKET_PATH : WINDOWS_NAMED_PIPE;
+if (usingUnixDomainSocket) {
+  fs.mkdirSync(SOCKET_DIR, { recursive: true });
+}
+server.on("error", (err) => {
+  if (err.code === "EADDRINUSE") {
+    console.error(
+      `Error: beachpatrol is already running for ${SOCKET_NAME}.`,
+    );
+    process.exit(1);
+  }
+  throw err;
+});
+
+// Start serer
+await new Promise((resolve) => {
+  server.once("listening", resolve);
+  server.listen(endpoint);
+});
+
 const cleanup = () => {
   console.log("Cleaning up and shutting down...");
   if (usingUnixDomainSocket && fs.existsSync(SOCKET_PATH)) {
@@ -159,7 +252,6 @@ const cleanup = () => {
 };
 
 // Launch browser with specified profile and args
-let browserContext;
 if (incognito) {
   const browser = await browserCommand.launch(launchOptions);
   browserContext = await browser.newContext();
@@ -217,10 +309,6 @@ const handleDownload = async (download) => {
   }
 };
 
-// Track the active page (the last focused tab in the browser).
-// - Note: This will (currently) always be null for Firefox.
-let activePage = null;
-
 // Setup custom Beachpatrol functionality for each page
 const setupPage = async (page) => {
   // Attach download handler
@@ -257,76 +345,6 @@ browserContext.on("page", async (page) => {
   await setupPage(page);
 });
 
-const DATA_DIR =
-  process.env.XDG_DATA_HOME || path.join(HOME_DIR, ".local/share");
-const SOCKET_DIR = `${DATA_DIR}/beachpatrol`;
-const SOCKET_PATH = `${SOCKET_DIR}/beachpatrol.sock`;
-const WINDOWS_NAMED_PIPE = String.raw`\\.\pipe\beachpatrol`;
-const usingUnixDomainSocket = process.platform !== "win32";
-if (usingUnixDomainSocket) {
-  // prepare UNIX socket to listen for commands
-  if (!fs.existsSync(SOCKET_DIR)) {
-    fs.mkdirSync(SOCKET_DIR, { recursive: true });
-  }
-  if (fs.existsSync(SOCKET_PATH)) {
-    fs.unlinkSync(SOCKET_PATH);
-  }
-}
-
-// Listen for commands
-const server = createServer((socket) => {
-  socket.on("data", async (data) => {
-    const message = JSON.parse(data.toString());
-    const [commandName, ...args] = message;
-
-    // Sanitize commandName
-    if (commandName.includes("..")) {
-      const ERROR_MESSAGE = `Error: Invalid command name '${commandName}'. No path traversal allowed.`;
-      console.log(ERROR_MESSAGE);
-      socket.write(`${ERROR_MESSAGE}\n`);
-      return;
-    }
-
-    const COMMANDS_DIR = "commands";
-    const commandFilePath = path.join(
-      PROJECT_ROOT,
-      COMMANDS_DIR,
-      `${commandName}.js`,
-    );
-
-    // log command
-    console.log(`Received command: ${commandName} ${args.join(" ")}`);
-
-    // Check if command script exists.
-    if (!fs.existsSync(commandFilePath)) {
-      const ERROR_MESSAGE = `Error: Command script ${commandName}.js does not exist.`;
-      console.log(ERROR_MESSAGE);
-      socket.write(`${ERROR_MESSAGE}\n`);
-    } else {
-      // Import and run the command
-      try {
-        // import with a timestamp to avoid caching
-        const moduleURL = pathToFileURL(commandFilePath).href;
-        const { default: command } = await import(
-          `${moduleURL}?t=${Date.now()}`
-        );
-
-        // Run command, passing `{ context, activePage }` as first argument
-        await command({ context: browserContext, activePage }, ...args);
-        const SUCCESS_MESSAGE = "Command executed successfully.";
-        console.log(SUCCESS_MESSAGE);
-        socket.write(`${SUCCESS_MESSAGE}\n`);
-      } catch (error) {
-        const ERROR_MESSAGE = `Error: Failed to execute command. ${error.message}`;
-        console.log(ERROR_MESSAGE);
-        socket.write(`${ERROR_MESSAGE}\n`);
-      }
-    }
-  });
-});
-
-let endpoint = usingUnixDomainSocket ? SOCKET_PATH : WINDOWS_NAMED_PIPE;
-server.listen(endpoint);
 console.log(`beachpatrol listening on ${endpoint}`);
 
 // Handle process termination signals
