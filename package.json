@@ -28,5 +28,28 @@
     "playwright": "1.62.1",
     "playwright-extra": "4.3.6",
     "puppeteer-extra-plugin-stealth": "2.11.2"
+  },
+  "overrides": {
+    "brace-expansion": {
+      "brace-expansion": "5.0.9"
+    },
+    "glob": {
+      "brace-expansion": "5.0.9"
+    },
+    "minimatch": {
+      "brace-expansion": "5.0.9"
+    },
+    "puppeteer-extra-plugin-stealth": {
+      "brace-expansion": "5.0.9"
+    },
+    "puppeteer-extra-plugin-user-data-dir": {
+      "brace-expansion": "5.0.9"
+    },
+    "puppeteer-extra-plugin-user-preferences": {
+      "brace-expansion": "5.0.9"
+    },
+    "rimraf": {
+      "brace-expansion": "5.0.9"
+    }
   }
 }
