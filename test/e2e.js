@@ -388,3 +388,46 @@ test("Beachpatrol E2E beachmsg Missing Server", async (t) => {
   );
   console.log("   missing server gone... OK.");
 });
+
+test("Beachpatrol E2E beachmsg Unknown Command", async (t) => {
+  const result = await exec(
+    `node "${BEACHMSG_PATH}" --browser ${browser} --profile ${testProfile("nope")} ayy`,
+  ).catch((err) => err);
+
+  assert.strictEqual(result.code, 1, "beachmsg should exit with code 1");
+  assert.strictEqual(
+    result.stdout,
+    "",
+    "beachmsg stdout should be empty for an unknown command",
+  );
+  assert.ok(
+    result.stderr.includes("Error: Command script ayy.js does not exist."),
+    "stderr should report the unknown command",
+  );
+  console.log("   unknown command OK.");
+});
+
+test("Beachpatrol E2E beachmsg No Command", async (t) => {
+  const invocations = ["", "--profile foo"];
+
+  for (const args of invocations) {
+    const result = await exec(
+      `node "${BEACHMSG_PATH}" ${args}`.trim(),
+    ).catch((err) => err);
+    assert.strictEqual(
+      result.code,
+      1,
+      `beachmsg with args "${args}" should exit with code 1`,
+    );
+    assert.strictEqual(
+      result.stdout,
+      "",
+      `beachmsg with args "${args}" should not write to stdout`,
+    );
+    assert.ok(
+      result.stderr.includes("Error: No command specified."),
+      `beachmsg with args "${args}" should report the missing command`,
+    );
+  }
+  console.log("   no command OK.");
+});
