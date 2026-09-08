@@ -58,10 +58,12 @@ function startServer(args, t) {
       await once(beachpatrolProcess, "exit");
     }
 
-    // Remove leftover test dirs
+    // Remove leftover test dirs.
     fs.rmSync(testProfileDir(profile), {
       recursive: true,
       force: true,
+      maxRetries: 10,
+      retryDelay: 100,
     });
   });
 
