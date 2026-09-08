@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { connect } from "net";
+import { createInterface } from "readline";
 import os from "os";
 import fs from "fs";
 import path from "path";
@@ -92,9 +93,25 @@ const client = connect(endpoint, () => {
   client.write(JSON.stringify([commandName, ...args]));
 });
 
-client.on("data", (data) => {
-  process.stdout.write(data.toString());
-  client.end(); // End connection after response is received
+// Read the response line by line as it arrives. Lines are printed to stdout
+// as they come; the final line (if the command failed) is the error sentinel,
+// whose message goes to stderr and flips the exit code to 1.
+const ERROR_SENTINEL = "BEACHPATROL_ERROR:";
+let exitCode = 0;
+
+const handleLine = (line) => {
+  if (line.startsWith(ERROR_SENTINEL)) {
+    process.stderr.write(`Error: ${line.slice(ERROR_SENTINEL.length).trim()}\n`);
+    exitCode = 1;
+  } else {
+    process.stdout.write(`${line}\n`);
+  }
+};
+
+const rl = createInterface({ input: client });
+rl.on("line", handleLine);
+rl.on("close", () => {
+  process.exitCode = exitCode;
 });
 
 client.on("error", (err) => {

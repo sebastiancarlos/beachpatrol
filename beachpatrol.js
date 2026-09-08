@@ -158,41 +158,50 @@ let activePage = null;
 
 // Listen for commands
 const server = createServer((socket) => {
+
+  // Wire protocol helpers
+  const ERROR_SENTINEL = "BEACHPATROL_ERROR:";
+  const writeValue = (value) => {
+    // Write value to socket
+    let output = typeof value === "string" ? value : JSON.stringify(value);
+    if (!output.endsWith("\n")) output += "\n";
+    socket.write(output);
+  };
+  const writeError = (message) => {
+    // Log error to server console and to socket (with sentinel line)
+    console.log(`Error: ${message}`);
+    socket.write(`${ERROR_SENTINEL} ${message.replace(/\n/g, " ")}\n`);
+    socket.end();
+  };
+
   socket.on("data", async (data) => {
     const message = JSON.parse(data.toString());
     const [commandName, ...args] = message;
 
     // Sanitize commandName
     if (commandName.includes("..")) {
-      const ERROR_MESSAGE = `Error: Invalid command name '${commandName}'. No path traversal allowed.`;
-      console.log(ERROR_MESSAGE);
-      socket.write(`${ERROR_MESSAGE}\n`);
+      writeError(`Invalid command name '${commandName}'. No path traversal allowed.`);
       return;
     }
 
-    // A command may arrive before the browser is ready; ask the client to retry.
+    // A command may arrive before the browser is ready. Ask the client to retry.
     if (!browserContext) {
-      const ERROR_MESSAGE = "Error: Browser is still starting. Please retry.";
-      console.log(ERROR_MESSAGE);
-      socket.write(`${ERROR_MESSAGE}\n`);
+      writeError("Browser is still starting. Please retry.");
       return;
     }
 
+    // identify and log command
     const COMMANDS_DIR = "commands";
     const commandFilePath = path.join(
       PROJECT_ROOT,
       COMMANDS_DIR,
       `${commandName}.js`,
     );
-
-    // log command
     console.log(`Received command: ${commandName} ${args.join(" ")}`);
 
     // Check if command script exists.
     if (!fs.existsSync(commandFilePath)) {
-      const ERROR_MESSAGE = `Error: Command script ${commandName}.js does not exist.`;
-      console.log(ERROR_MESSAGE);
-      socket.write(`${ERROR_MESSAGE}\n`);
+      writeError(`Command script ${commandName}.js does not exist.`);
     } else {
       // Import and run the command
       try {
@@ -202,15 +211,25 @@ const server = createServer((socket) => {
           `${moduleURL}?t=${Date.now()}`
         );
 
-        // Run command, passing `{ context, activePage }` as first argument
-        await command({ context: browserContext, activePage }, ...args);
-        const SUCCESS_MESSAGE = "Command executed successfully.";
-        console.log(SUCCESS_MESSAGE);
-        socket.write(`${SUCCESS_MESSAGE}\n`);
+        // Run command, passing `{ context, activePage }` as first argument.
+        // A generator command streams its yielded values to the client, and 
+        // plain function returns a single value.
+        const isGeneratorFn =
+          command.constructor.name === "GeneratorFunction" ||
+          command.constructor.name === "AsyncGeneratorFunction";
+        const result = command({ context: browserContext, activePage }, ...args);
+        if (isGeneratorFn) {
+          for await (const value of result) {
+            writeValue(value);
+          }
+        } else {
+          const value = await result;
+          if (value !== undefined) writeValue(value);
+        }
+        socket.end();
+        console.log("Command executed successfully.");
       } catch (error) {
-        const ERROR_MESSAGE = `Error: Failed to execute command. ${error.message}`;
-        console.log(ERROR_MESSAGE);
-        socket.write(`${ERROR_MESSAGE}\n`);
+        writeError(error.message);
       }
     }
   });
