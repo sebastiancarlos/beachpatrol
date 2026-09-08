@@ -121,6 +121,13 @@ beachmsg search "your search terms here"
 **Tip**: You can edit your command files and re-run them without needing to
 restart the `beachpatrol` server! Your changes will be picked up automatically.
 
+The return value of your command is sent back to the client as output. To
+stream multiple lines, write the function as a generator function (`export
+default async function*`) and `yield` each line (A `return` in a generator is
+ignored, because by iterator semantics it's not considered part of the
+message). A thrown error is printed by the client, which then exits with code
+1.
+
 You can always look at the built-in
 [`commands/smoke-test.js`](https://github.com/sebastiancarlos/beachpatrol/blob/main/commands/smoke-test.js)
 command for inspiration.
