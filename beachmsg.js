@@ -93,6 +93,13 @@ const client = connect(endpoint, () => {
   client.write(JSON.stringify([commandName, ...args]));
 });
 
+client.on("error", () => {
+  console.error(
+    "Error: Could not connect to the beachpatrol socket. Have you started beachpatrol?",
+  );
+  process.exit(1);
+});
+
 // Read the response line by line as it arrives. Lines are printed to stdout
 // as they come; the final line (if the command failed) is the error sentinel,
 // whose message goes to stderr and flips the exit code to 1.
@@ -112,12 +119,4 @@ const rl = createInterface({ input: client });
 rl.on("line", handleLine);
 rl.on("close", () => {
   process.exitCode = exitCode;
-});
-
-client.on("error", (err) => {
-  console.error(
-    `Error: Could not connect to the beachpatrol socket. ${err.message}`,
-  );
-  console.log("Have you started beachpatrol?");
-  process.exit(1);
 });
