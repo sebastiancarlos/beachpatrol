@@ -465,7 +465,7 @@ test("Beachpatrol E2E beachmsg No Command", async (t) => {
 test("Beachpatrol E2E beachmsg --list", async (t) => {
   // Use a dedicated XDG_DATA_HOME so the listing only ever sees the instances
   // this test starts.
-  const dataHome = fs.mkdtempSync(path.join(os.tmpdir(), "beachpatrol-test-data-"));
+  const dataHome = fs.mkdtempSync(path.join(os.tmpdir(), "bp-"));
   const oldDataHome = process.env.XDG_DATA_HOME;
   process.env.XDG_DATA_HOME = dataHome;
   t.after(() => {
