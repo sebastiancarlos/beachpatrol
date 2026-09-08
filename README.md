@@ -128,9 +128,8 @@ ignored, because by iterator semantics it's not considered part of the
 message). A thrown error is printed by the client, which then exits with code
 1.
 
-You can always look at the built-in
-[`commands/smoke-test.js`](https://github.com/sebastiancarlos/beachpatrol/blob/main/commands/smoke-test.js)
-command for inspiration.
+You can always look at the built-in commands for inspiration: [`commands/smoke-test.js`](https://github.com/sebastiancarlos/beachpatrol/blob/main/commands/smoke-test.js) (used for E2E tests)
+and [`commands/list-tabs.js`](https://github.com/sebastiancarlos/beachpatrol/blob/main/commands/list-tabs.js) (used for the `--list` feature)
 
 ## Technical details
 
@@ -192,7 +191,9 @@ ROUTE FLAGS:
   --incognito               Target the incognito instance.
 
 Options:
+  --list                    List all running instances and their open tabs.
   --help                    Show this help message.
+  --version                 Show version.
 ```
 
 ## F.A.Q.
