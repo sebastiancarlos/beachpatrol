@@ -6,6 +6,7 @@ import { promisify } from "node:util";
 import path from "node:path";
 import os from "node:os";
 import fs from "node:fs";
+import { createServer } from "node:http";
 import { fileURLToPath } from "node:url";
 
 const exec = promisify(execCallback);
@@ -36,16 +37,22 @@ function testProfileDir(profile) {
 }
 
 // Spawn a beachpatrol server that is killed on test cleanup, and resolve once
-// it announces it is listening.
+// it announces it is listening. Each server gets its own throwaway download
+// dir (via XDG_DOWNLOAD_DIR).
 function startServer(args, t) {
   const profile = args[args.indexOf("--profile") + 1];
+  const downloadDir = fs.mkdtempSync(
+    path.join(os.tmpdir(), "beachpatrol-test-downloads-"),
+  );
   const beachpatrolProcess = spawn("node", [
     BEACHPATROL_PATH,
     "--headless",
     "--browser",
     browser,
     ...args,
-  ]);
+  ], {
+    env: { ...process.env, XDG_DOWNLOAD_DIR: downloadDir },
+  });
 
   let exitExpected = false;
   t.after(async () => {
@@ -59,12 +66,14 @@ function startServer(args, t) {
     }
 
     // Remove leftover test dirs.
-    fs.rmSync(testProfileDir(profile), {
-      recursive: true,
-      force: true,
-      maxRetries: 10,
-      retryDelay: 100,
-    });
+    for (const dir of [testProfileDir(profile), downloadDir]) {
+      fs.rmSync(dir, {
+        recursive: true,
+        force: true,
+        maxRetries: 10,
+        retryDelay: 100,
+      });
+    }
   });
 
   // accumulate stdout
@@ -98,7 +107,7 @@ function startServer(args, t) {
     })(),
   ]).finally(() => clearTimeout(clearTimeoutId));
 
-  return { beachpatrolProcess, waitForReady, readStdout };
+  return { beachpatrolProcess, waitForReady, readStdout, downloadDir };
 }
 
 test("Beachpatrol E2E Smoke Test", async (t) => {
@@ -199,6 +208,95 @@ test("Beachpatrol E2E Plain Function Command", async (t) => {
     "beachmsg stderr should be empty for a successful command.",
   );
   console.log("   plain function output OK.");
+});
+
+test("Beachpatrol E2E Download Mechanic", async (t) => {
+  console.log(">>> Starting beachpatrol server and download fixture for test...");
+  const profile = testProfile("dl");
+
+  // Simple local HTTP server serving an HTML page with two download buttons.
+  // The command presses the first one twice, so the second download of the
+  // same file exercises the filename-collision path in the custom handler.
+  const FILES = new Map([
+    ["alpha.txt", "alpha contents"],
+    ["beta.txt", "beta contents"],
+  ]);
+  const httpServer = createServer((req, res) => {
+    if (req.url === "/") {
+      res.writeHead(200, { "Content-Type": "text/html" });
+      res.end(
+        `<button id="alpha" onclick="location.href='/alpha.txt'">alpha</button>
+<button id="beta" onclick="location.href='/beta.txt'">beta</button>`,
+      );
+      return;
+    }
+    const body = FILES.get(req.url.slice(1));
+    if (body === undefined) {
+      res.writeHead(404);
+      res.end("not found");
+      return;
+    }
+    res.writeHead(200, { "Content-Type": "application/octet-stream" });
+    res.end(body);
+  });
+  await new Promise((resolve) => httpServer.listen(0, "127.0.0.1", resolve));
+  t.after(() => httpServer.close());
+  const fixtureUrl = `http://127.0.0.1:${httpServer.address().port}/`;
+
+  const { waitForReady, downloadDir } = startServer(["--profile", profile], t);
+  await waitForReady;
+
+  // Throwaway command: open the fixture page and trigger three downloads by
+  // pressing the two buttons, one of them twice (the repeat is what hits the
+  // filename-collision path in the custom download handler).
+  const COMMANDS_DIR = path.resolve(projectRoot, "..", "commands");
+  const downloadCommandPath = path.join(COMMANDS_DIR, "download-test.js");
+  fs.writeFileSync(
+    downloadCommandPath,
+    `export default async ({ context }, url) => {
+  const page = await context.newPage();
+  await page.goto(url);
+  for (const id of ["#alpha", "#beta", "#alpha"]) {
+    const [download] = await Promise.all([
+      page.waitForEvent("download"),
+      page.locator(id).click(),
+    ]);
+    await download.path();
+  }
+};\n`,
+  );
+  t.after(() => {
+    fs.rmSync(downloadCommandPath, { force: true });
+  });
+
+  console.log("   Running beachmsg download-test...");
+  await exec(
+    `node "${BEACHMSG_PATH}" --browser ${browser} --profile ${profile} download-test ${fixtureUrl}`,
+  );
+
+  // The handler renames to "suggestedFilename()" and, on collision, appends
+  // " (1)", " (2)", etc. Poll for the downloaded files to appear.
+  const waitForFile = async (name) => {
+    const expected = path.join(downloadDir, name);
+    for (let i = 0; i < 40; i++) {
+      if (fs.existsSync(expected)) return expected;
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    throw new Error(`Downloaded file not found: ${name}`);
+  };
+  assert.ok(
+    fs.readFileSync(await waitForFile("alpha.txt"), "utf-8").includes("alpha contents"),
+    "First alpha.txt download should be saved with its suggested filename.",
+  );
+  assert.ok(
+    fs.readFileSync(await waitForFile("alpha (1).txt"), "utf-8").includes("alpha contents"),
+    "Second alpha.txt download should be renamed with a collision counter.",
+  );
+  assert.ok(
+    fs.readFileSync(await waitForFile("beta.txt"), "utf-8").includes("beta contents"),
+    "beta.txt download should be saved with its suggested filename.",
+  );
+  console.log("   download mechanic OK.");
 });
 
 test("Beachpatrol E2E Concurrent Routing", async (t) => {
