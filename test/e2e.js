@@ -70,8 +70,8 @@ function startServer(args, t) {
       fs.rmSync(dir, {
         recursive: true,
         force: true,
-        maxRetries: 10,
-        retryDelay: 100,
+        maxRetries: 100,
+        retryDelay: 200,
       });
     }
   });
@@ -367,4 +367,24 @@ test("Beachpatrol E2E Refuses Duplicate Instance", async (t) => {
     readStdout().includes("Received command: smoke-test"),
     "original instance should still receive commands",
   );
+});
+
+test("Beachpatrol E2E beachmsg Missing Server", async (t) => {
+  const profile = testProfile("noserver");
+  const result = await exec(
+    `node "${BEACHMSG_PATH}" --browser ${browser} --profile ${profile} smoke-test`,
+  ).catch((err) => err);
+
+  assert.strictEqual(result.code, 1, "beachmsg should exit with code 1");
+  assert.ok(
+    result.stderr.includes(
+      "Could not connect to the beachpatrol socket. Have you started beachpatrol?",
+    ),
+    "stderr should explain that the server is not running",
+  );
+  assert.ok(
+    !result.stderr.includes("Unhandled 'error' event"),
+    "beachmsg should not crash with an unhandled error",
+  );
+  console.log("   missing server gone... OK.");
 });

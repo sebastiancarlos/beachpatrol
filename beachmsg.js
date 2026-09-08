@@ -113,11 +113,9 @@ rl.on("line", handleLine);
 rl.on("close", () => {
   process.exitCode = exitCode;
 });
-
-client.on("error", (err) => {
+rl.on("error", () => {
   console.error(
-    `Error: Could not connect to the beachpatrol socket. ${err.message}`,
+    "Error: Could not connect to the beachpatrol socket. Have you started beachpatrol?",
   );
-  console.log("Have you started beachpatrol?");
   process.exit(1);
 });
