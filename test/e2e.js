@@ -98,12 +98,16 @@ function startServer(args, t) {
     }
   });
 
-  // accumulate stdout
+  // accumulate stdout and stderr
   const serverStdout = [];
   beachpatrolProcess.stdout.on("data", (data) => {
     serverStdout.push(data.toString());
   });
   const readStdout = () => serverStdout.join("");
+  const serverStderr = [];
+  beachpatrolProcess.stderr.on("data", (data) => {
+    serverStderr.push(data.toString());
+  });
 
   // wait for expected output, or timeout, or unexpected exit
   let clearTimeoutId;
@@ -122,9 +126,13 @@ function startServer(args, t) {
       throw new Error("Timeout waiting for server ready.");
     })(),
     (async () => {
-      await once(beachpatrolProcess, "exit");
+      const [code, signal] = await once(beachpatrolProcess, "exit");
       if (!exitExpected) {
-        throw new Error("Beachpatrol process exited unexpectedly");
+        const stderr = serverStderr.join("").trim();
+        throw new Error(
+          `Beachpatrol process exited unexpectedly ` +
+            `(code ${code}, signal ${signal})${stderr ? `: ${stderr}` : ""}`,
+        );
       }
     })(),
   ]).finally(() => clearTimeout(clearTimeoutId));
@@ -470,6 +478,16 @@ test("Beachpatrol E2E beachmsg --list", async (t) => {
   });
   const env = { ...process.env, XDG_DATA_HOME: dataHome };
 
+  // With an empty registry, --list reports no instances and still exits 0.
+  // Checked before any server is started, because on Windows discovery
+  // enumerates global named pipes: any running instance would be listed.
+  const emptyResult = await exec(`node "${BEACHMSG_PATH}" --list`, { env });
+  assert.ok(
+    emptyResult.stdout.includes("No instances running."),
+    "empty --list should report no instances",
+  );
+  console.log("   empty --list OK.");
+
   // Local fixture page with a stable title, so the listing has something to show.
   const httpServer = createServer((req, res) => {
     res.writeHead(200, { "Content-Type": "text/html" });
@@ -530,25 +548,5 @@ test("Beachpatrol E2E beachmsg --list", async (t) => {
     result.stdout.includes("list-tabs-fixture"),
     "stdout should include A's open tab title",
   );
-
-  // With an empty registry, --list reports no instances and still exits 0.
-  const emptyDataHome = fs.mkdtempSync(
-    path.join(os.tmpdir(), "beachpatrol-test-data-"),
-  );
-  t.after(() => {
-    fs.rmSync(emptyDataHome, {
-      recursive: true,
-      force: true,
-      maxRetries: 100,
-      retryDelay: 200,
-    });
-  });
-  const emptyResult = await exec(`node "${BEACHMSG_PATH}" --list`, {
-    env: { ...process.env, XDG_DATA_HOME: emptyDataHome },
-  });
-  assert.ok(
-    emptyResult.stdout.includes("No instances running."),
-    "empty --list should report no instances",
-  );
-  console.log("   empty --list OK.");
+  console.log("   --list OK.");
 });

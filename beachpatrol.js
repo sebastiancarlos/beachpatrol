@@ -258,7 +258,10 @@ await new Promise((resolve) => {
   server.listen(endpoint);
 });
 
-const cleanup = () => {
+let cleanupDone = false;
+const cleanup = async () => {
+  if (cleanupDone) return;
+  cleanupDone = true;
   console.log("Cleaning up and shutting down...");
   if (usingUnixDomainSocket && fs.existsSync(SOCKET_PATH)) {
     fs.unlinkSync(SOCKET_PATH);
@@ -268,6 +271,7 @@ const cleanup = () => {
     server.close();
     console.log("  - Server closed");
   }
+  await browserContext?.close();
   process.exit(0);
 };
 
