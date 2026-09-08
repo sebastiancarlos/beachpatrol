@@ -70,8 +70,8 @@ function startServer(args, t) {
       fs.rmSync(dir, {
         recursive: true,
         force: true,
-        maxRetries: 10,
-        retryDelay: 100,
+        maxRetries: 100,
+        retryDelay: 200,
       });
     }
   });
