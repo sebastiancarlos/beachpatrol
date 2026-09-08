@@ -150,7 +150,7 @@ const DATA_DIR =
 const SOCKET_DIR = `${DATA_DIR}/beachpatrol`;
 const SOCKET_NAME = `${browser}-${profileName}${incognito ? "-incognito" : ""}`;
 const SOCKET_PATH = `${SOCKET_DIR}/${SOCKET_NAME}.sock`;
-const WINDOWS_NAMED_PIPE = String.raw`\\.\pipe\beachpatrol`;
+const WINDOWS_NAMED_PIPE = String.raw`\\.\pipe\beachpatrol-${SOCKET_NAME}`;
 const usingUnixDomainSocket = process.platform !== "win32";
 
 let browserContext;
@@ -223,7 +223,8 @@ if (usingUnixDomainSocket) {
   fs.mkdirSync(SOCKET_DIR, { recursive: true });
 }
 server.on("error", (err) => {
-  if (err.code === "EADDRINUSE") {
+  // EADDRINUSE on Unix sockets; EEXIST on Windows named pipes
+  if (err.code === "EADDRINUSE" || err.code === "EEXIST") {
     console.error(
       `Error: beachpatrol is already running for ${SOCKET_NAME}.`,
     );
