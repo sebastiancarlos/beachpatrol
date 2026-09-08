@@ -4,6 +4,8 @@ import { spawn, exec as execCallback } from "node:child_process";
 import { once, on } from "node:events";
 import { promisify } from "node:util";
 import path from "node:path";
+import os from "node:os";
+import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 
 const exec = promisify(execCallback);
@@ -20,57 +22,98 @@ const SERVER_TIMEOUT = 8_000;
 // If set, use browser in env var TEST_BROWSERS (used by CI)
 const browser = process.env.TEST_BROWSER || "chromium";
 
-test("Beachpatrol E2E Smoke Test", async (t) => {
-  console.log(">>> Starting beachpatrol server for test...");
+// Test profiles are prefixed with "test-", so that they never touch a real profile
+function testProfile(suffix) {
+  return `test-${process.pid}-${suffix}`;
+}
+
+// Profile dir for a test profile
+function testProfileDir(profile) {
+  return path.join(
+    os.homedir(),
+    `.config/beachpatrol/profiles/${browser}/${profile}`,
+  );
+}
+
+// Spawn a beachpatrol server that is killed on test cleanup, and resolve once
+// it announces it is listening.
+function startServer(args, t) {
+  const profile = args[args.indexOf("--profile") + 1];
   const beachpatrolProcess = spawn("node", [
     BEACHPATROL_PATH,
     "--headless",
     "--browser",
     browser,
+    ...args,
   ]);
 
-  // on cleanup, kill process and notify handlers with flag
   let exitExpected = false;
-  t.after(() => {
-    console.log(">>> Cleaning up beachpatrol server...");
+  t.after(async () => {
     exitExpected = true;
-    beachpatrolProcess.kill("SIGKILL");
+    // SIGTERM triggers cleanup() (server removes its own socket).
+    beachpatrolProcess.kill("SIGTERM");
+
+    // wait for exit before removing dirs
+    if (beachpatrolProcess.exitCode === null) {
+      await once(beachpatrolProcess, "exit");
+    }
+
+    // Remove leftover test dirs.
+    fs.rmSync(testProfileDir(profile), {
+      recursive: true,
+      force: true,
+      maxRetries: 10,
+      retryDelay: 100,
+    });
   });
 
-  // wait for expected output, or timout, or unexpected exit
+  // accumulate stdout
+  const serverStdout = [];
+  beachpatrolProcess.stdout.on("data", (data) => {
+    serverStdout.push(data.toString());
+  });
+  const readStdout = () => serverStdout.join("");
+
+  // wait for expected output, or timeout, or unexpected exit
   let clearTimeoutId;
-  try {
-    await Promise.race([
-      (async () => {
-        for await (const data of on(beachpatrolProcess.stdout, "data")) {
-          if (data.toString().includes(SERVER_READY_MARKER)) {
-            console.log(">>> Beachpatrol server started successfully.");
-            return;
-          }
+  const waitForReady = Promise.race([
+    (async () => {
+      for await (const data of on(beachpatrolProcess.stdout, "data")) {
+        if (data.toString().includes(SERVER_READY_MARKER)) {
+          return;
         }
-      })(),
-      (async () => {
-        await new Promise((resolve) => {
-          clearTimeoutId = setTimeout(resolve, SERVER_TIMEOUT);
-        });
-        throw new Error("Timeout waiting for server ready.");
-      })(),
-      (async () => {
-        await once(beachpatrolProcess, "exit");
-        if (!exitExpected) {
-          throw new Error("Beachpatrol process exited unexpectedly");
-        }
-      })(),
-    ]);
-  } finally {
-    clearTimeout(clearTimeoutId);
-  }
+      }
+    })(),
+    (async () => {
+      await new Promise((resolve) => {
+        clearTimeoutId = setTimeout(resolve, SERVER_TIMEOUT);
+      });
+      throw new Error("Timeout waiting for server ready.");
+    })(),
+    (async () => {
+      await once(beachpatrolProcess, "exit");
+      if (!exitExpected) {
+        throw new Error("Beachpatrol process exited unexpectedly");
+      }
+    })(),
+  ]).finally(() => clearTimeout(clearTimeoutId));
 
-  // Run the client command
+  return { beachpatrolProcess, waitForReady, readStdout };
+}
+
+test("Beachpatrol E2E Smoke Test", async (t) => {
+  console.log(">>> Starting beachpatrol server for test...");
+  const profile = testProfile("smoke");
+  const { waitForReady } = startServer(["--profile", profile], t);
+  await waitForReady;
+
+  // Run the beachmsg
   console.log("   Running beachmsg smoke-test...");
-  const clientResult = await exec(`node "${BEACHMSG_PATH}" smoke-test`);
+  const clientResult = await exec(
+    `node "${BEACHMSG_PATH}" --browser ${browser} --profile ${profile} smoke-test`,
+  );
 
-  // Check beachmsg (client) output
+  // Check beachmsg output
   assert.strictEqual(
     clientResult.stderr,
     "",
@@ -81,4 +124,74 @@ test("Beachpatrol E2E Smoke Test", async (t) => {
     `Expected beachmsg stdout to include: "${BEACHMSG_EXPECTED_STDOUT}"`,
   );
   console.log("   beachmsg output OK.");
+});
+
+test("Beachpatrol E2E Concurrent Routing", async (t) => {
+  console.log(">>> Starting two beachpatrol servers for test...");
+  const profileA = testProfile("a");
+  const profileB = testProfile("b");
+  const serverA = startServer(["--profile", profileA], t);
+  await serverA.waitForReady;
+  const serverB = startServer(["--profile", profileB], t);
+  await serverB.waitForReady;
+
+  // Send smoke-test to A and verify only A receives it. Routing is proven by
+  // the per-server "Received command" marker.
+  console.log("   Routing smoke-test to server A...");
+  const resultA = await exec(
+    `node "${BEACHMSG_PATH}" --browser ${browser} --profile ${profileA} smoke-test`,
+  );
+  assert.ok(
+    serverA.readStdout().includes("Received command: smoke-test"),
+    "server A should receive the command",
+  );
+  assert.ok(
+    !serverB.readStdout().includes("Received command: smoke-test"),
+    "server B should not receive A's command",
+  );
+  assert.ok(
+    resultA.stdout.includes(BEACHMSG_EXPECTED_STDOUT),
+    `Expected beachmsg stdout to include: "${BEACHMSG_EXPECTED_STDOUT}"`,
+  );
+
+  // Route smoke-test to B and verify only B receives it.
+  console.log("   Routing smoke-test to server B...");
+  const resultB = await exec(
+    `node "${BEACHMSG_PATH}" --browser ${browser} --profile ${profileB} smoke-test`,
+  );
+  assert.ok(
+    serverB.readStdout().includes("Received command: smoke-test"),
+    "server B should receive the command",
+  );
+  assert.ok(
+    resultB.stdout.includes(BEACHMSG_EXPECTED_STDOUT),
+    `Expected beachmsg stdout to include: "${BEACHMSG_EXPECTED_STDOUT}"`,
+  );
+});
+
+test("Beachpatrol E2E Refuses Duplicate Instance", async (t) => {
+  console.log(">>> Starting beachpatrol server for test...");
+  const profile = testProfile("dup");
+  const { waitForReady, readStdout } = startServer(["--profile", profile], t);
+  await waitForReady;
+
+  // A second instance for the same slot must refuse to bind, before launching
+  // a browser, and leave the running instance untouched.
+  const second = await exec(
+    `node "${BEACHPATROL_PATH}" --headless --browser ${browser} --profile ${profile}`,
+  ).catch((err) => err);
+  assert.strictEqual(second.code, 1, "second instance should exit with code 1");
+  assert.ok(
+    second.stderr.includes(`already running for ${browser}-${profile}`),
+    "stderr should report the occupied slot",
+  );
+
+  // The original instance is still serving.
+  await exec(
+    `node "${BEACHMSG_PATH}" --browser ${browser} --profile ${profile} smoke-test`,
+  );
+  assert.ok(
+    readStdout().includes("Received command: smoke-test"),
+    "original instance should still receive commands",
+  );
 });
