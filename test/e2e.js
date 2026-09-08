@@ -36,6 +36,28 @@ function testProfileDir(profile) {
   );
 }
 
+// Cleanup leftovers on kill
+function cleanup() {
+  const dataDir =
+    process.env.XDG_DATA_HOME || path.join(os.homedir(), ".local", "share");
+  const socketDir = path.join(dataDir, "beachpatrol");
+  try {
+    for (const file of fs.readdirSync(socketDir)) {
+      if (/-test-\d+-/.test(file)) {
+        fs.rmSync(path.join(socketDir, file), { force: true });
+      }
+    }
+  } catch {
+    // socket dir does not exist; nothing to sweep
+  }
+}
+for (const sig of ["SIGINT", "SIGTERM"]) {
+  process.on(sig, () => {
+    cleanup();
+    process.exit(1);
+  });
+}
+
 // Spawn a beachpatrol server that is killed on test cleanup, and resolve once
 // it announces it is listening. Each server gets its own throwaway download
 // dir (via XDG_DOWNLOAD_DIR).
@@ -76,12 +98,16 @@ function startServer(args, t) {
     }
   });
 
-  // accumulate stdout
+  // accumulate stdout and stderr
   const serverStdout = [];
   beachpatrolProcess.stdout.on("data", (data) => {
     serverStdout.push(data.toString());
   });
   const readStdout = () => serverStdout.join("");
+  const serverStderr = [];
+  beachpatrolProcess.stderr.on("data", (data) => {
+    serverStderr.push(data.toString());
+  });
 
   // wait for expected output, or timeout, or unexpected exit
   let clearTimeoutId;
@@ -100,9 +126,13 @@ function startServer(args, t) {
       throw new Error("Timeout waiting for server ready.");
     })(),
     (async () => {
-      await once(beachpatrolProcess, "exit");
+      const [code, signal] = await once(beachpatrolProcess, "exit");
       if (!exitExpected) {
-        throw new Error("Beachpatrol process exited unexpectedly");
+        const stderr = serverStderr.join("").trim();
+        throw new Error(
+          `Beachpatrol process exited unexpectedly ` +
+            `(code ${code}, signal ${signal})${stderr ? `: ${stderr}` : ""}`,
+        );
       }
     })(),
   ]).finally(() => clearTimeout(clearTimeoutId));
@@ -430,4 +460,93 @@ test("Beachpatrol E2E beachmsg No Command", async (t) => {
     );
   }
   console.log("   no command OK.");
+});
+
+test("Beachpatrol E2E beachmsg --list", async (t) => {
+  // Use a dedicated XDG_DATA_HOME so the listing only ever sees the instances
+  // this test starts.
+  const dataHome = fs.mkdtempSync(path.join(os.tmpdir(), "bp-"));
+  const oldDataHome = process.env.XDG_DATA_HOME;
+  process.env.XDG_DATA_HOME = dataHome;
+  t.after(() => {
+    if (oldDataHome === undefined) {
+      delete process.env.XDG_DATA_HOME;
+    } else {
+      process.env.XDG_DATA_HOME = oldDataHome;
+    }
+    fs.rmSync(dataHome, { recursive: true, force: true, maxRetries: 100, retryDelay: 200 });
+  });
+  const env = { ...process.env, XDG_DATA_HOME: dataHome };
+
+  // With an empty registry, --list reports no instances and still exits 0.
+  // Checked before any server is started, because on Windows discovery
+  // enumerates global named pipes: any running instance would be listed.
+  const emptyResult = await exec(`node "${BEACHMSG_PATH}" --list`, { env });
+  assert.ok(
+    emptyResult.stdout.includes("No instances running."),
+    "empty --list should report no instances",
+  );
+  console.log("   empty --list OK.");
+
+  // Local fixture page with a stable title, so the listing has something to show.
+  const httpServer = createServer((req, res) => {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end("<title>list-tabs-fixture</title>");
+  });
+  await new Promise((resolve) => httpServer.listen(0, "127.0.0.1", resolve));
+  t.after(() => httpServer.close());
+  const fixtureUrl = `http://127.0.0.1:${httpServer.address().port}/`;
+
+  // Throwaway command: open the fixture in a tab.
+  const COMMANDS_DIR = path.resolve(projectRoot, "..", "commands");
+  const openCommandPath = path.join(COMMANDS_DIR, "list-open-test.js");
+  fs.writeFileSync(
+    openCommandPath,
+    `export default async ({ context }, url) => {
+  const page = await context.newPage();
+  await page.goto(url);
+};\n`,
+  );
+  t.after(() => {
+    fs.rmSync(openCommandPath, { force: true });
+  });
+
+  console.log(">>> Starting two beachpatrol servers for --list test...");
+  const profileA = testProfile("lista");
+  const profileB = testProfile("listb");
+  const serverA = startServer(["--profile", profileA], t);
+  await serverA.waitForReady;
+  const serverB = startServer(["--profile", profileB], t);
+  await serverB.waitForReady;
+
+  // Run command on instance A. Leave instance B untouched (it still has its default blank tab).
+  console.log("   Opening a fixture tab in instance A...");
+  await exec(
+    `node "${BEACHMSG_PATH}" --browser ${browser} --profile ${profileA} list-open-test ${fixtureUrl}`,
+    { env },
+  );
+
+  // --list must compose both instances, ignoring any route flags present.
+  console.log("   Running beachmsg --list...");
+  const result = await exec(
+    `node "${BEACHMSG_PATH}" --browser ${browser} --profile nonsensical --list`,
+    { env },
+  );
+
+  const instanceAHdr = `BROWSER: ${browser}, PROFILE: ${profileA}`;
+  const instanceBHdr = `BROWSER: ${browser}, PROFILE: ${profileB}`;
+  assert.ok(
+    result.stdout.includes(instanceAHdr),
+    `stdout should include instance A header ${instanceAHdr}`,
+  );
+  assert.ok(
+    result.stdout.includes(instanceBHdr),
+    `stdout should include instance B header ${instanceBHdr}`,
+  );
+  // A's fixture tab is listed. B also appears (it always has its default blank tab)
+  assert.ok(
+    result.stdout.includes("list-tabs-fixture"),
+    "stdout should include A's open tab title",
+  );
+  console.log("   --list OK.");
 });
