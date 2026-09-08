@@ -372,7 +372,7 @@ test("Beachpatrol E2E Refuses Duplicate Instance", async (t) => {
 test("Beachpatrol E2E beachmsg Missing Server", async (t) => {
   const profile = testProfile("noserver");
   const result = await exec(
-    `node "${BEACHMSG_PATH}" --browser ${browser} --profile ${profile} list-tabs`,
+    `node "${BEACHMSG_PATH}" --browser ${browser} --profile ${profile} smoke-test`,
   ).catch((err) => err);
 
   assert.strictEqual(result.code, 1, "beachmsg should exit with code 1");
