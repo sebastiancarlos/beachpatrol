@@ -11,6 +11,13 @@
     "beachpatrol": "./beachpatrol.js",
     "beachmsg": "./beachmsg.js"
   },
+  "files": [
+    "beachpatrol.js",
+    "beachmsg.js",
+    "commands/",
+    "playwright-active-page-extension/",
+    ".internal-scripts/"
+  ],
   "scripts": {
     "postinstall": "node ./.internal-scripts/postinstall.js",
     "test": "node --test \"./test/*.js\""

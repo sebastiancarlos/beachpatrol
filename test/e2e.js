@@ -36,26 +36,31 @@ function testProfileDir(profile) {
   );
 }
 
-// Cleanup leftovers on kill
-function cleanup() {
-  const dataDir =
-    process.env.XDG_DATA_HOME || path.join(os.homedir(), ".local", "share");
-  const socketDir = path.join(dataDir, "beachpatrol");
-  try {
-    for (const file of fs.readdirSync(socketDir)) {
-      if (/-test-\d+-/.test(file)) {
-        fs.rmSync(path.join(socketDir, file), { force: true });
-      }
+// Create a tmp folder to act as the XDG_DATA_HOME location for the duration of a test.
+// Override XDG_DATA_HOME env var with it, and return path.
+function isolateDataHome(t) {
+  const dataHome = fs.mkdtempSync(path.join(os.tmpdir(), "bp-"));
+  const old = process.env.XDG_DATA_HOME;
+  process.env.XDG_DATA_HOME = dataHome;
+  t.after(() => {
+    if (old === undefined) {
+      delete process.env.XDG_DATA_HOME;
+    } else {
+      process.env.XDG_DATA_HOME = old;
     }
-  } catch {
-    // socket dir does not exist; nothing to sweep
-  }
-}
-for (const sig of ["SIGINT", "SIGTERM"]) {
-  process.on(sig, () => {
-    cleanup();
-    process.exit(1);
+    fs.rmSync(dataHome, {
+      recursive: true,
+      force: true,
+      maxRetries: 100,
+      retryDelay: 200,
+    });
   });
+  return dataHome;
+}
+
+// Get the user commands dir, for a given XDG_DATA_HOME folder
+function userCommandsDir(dataHome) {
+  return path.join(dataHome, "beachpatrol", "commands");
 }
 
 // Spawn a beachpatrol server that is killed on test cleanup, and resolve once
@@ -143,6 +148,7 @@ function startServer(args, t) {
 test("Beachpatrol E2E Smoke Test", async (t) => {
   console.log(">>> Starting beachpatrol server for test...");
   const profile = testProfile("smoke");
+  isolateDataHome(t);
   const { waitForReady } = startServer(["--profile", profile], t);
   await waitForReady;
 
@@ -168,11 +174,13 @@ test("Beachpatrol E2E Smoke Test", async (t) => {
 test("Beachpatrol E2E Command Error Propagation", async (t) => {
   console.log(">>> Starting beachpatrol server for test...");
   const profile = testProfile("err");
+  const dataHome = isolateDataHome(t);
   const { waitForReady } = startServer(["--profile", profile], t);
   await waitForReady;
 
-  // Throwaway command that always throws
-  const COMMANDS_DIR = path.resolve(projectRoot, "..", "commands");
+  // Throwaway command: always throws.
+  const COMMANDS_DIR = userCommandsDir(dataHome);
+  fs.mkdirSync(COMMANDS_DIR, { recursive: true });
   const throwCommandPath = path.join(COMMANDS_DIR, "error-test.js");
   fs.writeFileSync(
     throwCommandPath,
@@ -207,12 +215,14 @@ test("Beachpatrol E2E Command Error Propagation", async (t) => {
 test("Beachpatrol E2E Plain Function Command", async (t) => {
   console.log(">>> Starting beachpatrol server for test...");
   const profile = testProfile("plain");
+  const dataHome = isolateDataHome(t);
   const { waitForReady } = startServer(["--profile", profile], t);
   await waitForReady;
 
   // A plain (non-generator) function returning a string must be written as a
   // single value.
-  const COMMANDS_DIR = path.resolve(projectRoot, "..", "commands");
+  const COMMANDS_DIR = userCommandsDir(dataHome);
+  fs.mkdirSync(COMMANDS_DIR, { recursive: true });
   const plainCommandPath = path.join(COMMANDS_DIR, "plain-test.js");
   fs.writeFileSync(
     plainCommandPath,
@@ -243,6 +253,7 @@ test("Beachpatrol E2E Plain Function Command", async (t) => {
 test("Beachpatrol E2E Download Mechanic", async (t) => {
   console.log(">>> Starting beachpatrol server and download fixture for test...");
   const profile = testProfile("dl");
+  const dataHome = isolateDataHome(t);
 
   // Simple local HTTP server serving an HTML page with two download buttons.
   // The command presses the first one twice, so the second download of the
@@ -276,10 +287,11 @@ test("Beachpatrol E2E Download Mechanic", async (t) => {
   const { waitForReady, downloadDir } = startServer(["--profile", profile], t);
   await waitForReady;
 
-  // Throwaway command: open the fixture page and trigger three downloads by
-  // pressing the two buttons, one of them twice (the repeat is what hits the
-  // filename-collision path in the custom download handler).
-  const COMMANDS_DIR = path.resolve(projectRoot, "..", "commands");
+  // Throwaway command: open the fixture page and trigger three downloads 
+  // by pressing the two buttons, one of them twice (the repeat is what hits 
+  // the filename-collision path in the custom download handler).
+  const COMMANDS_DIR = userCommandsDir(dataHome);
+  fs.mkdirSync(COMMANDS_DIR, { recursive: true });
   const downloadCommandPath = path.join(COMMANDS_DIR, "download-test.js");
   fs.writeFileSync(
     downloadCommandPath,
@@ -331,6 +343,7 @@ test("Beachpatrol E2E Download Mechanic", async (t) => {
 
 test("Beachpatrol E2E Concurrent Routing", async (t) => {
   console.log(">>> Starting two beachpatrol servers for test...");
+  isolateDataHome(t);
   const profileA = testProfile("a");
   const profileB = testProfile("b");
   const serverA = startServer(["--profile", profileA], t);
@@ -375,6 +388,7 @@ test("Beachpatrol E2E Concurrent Routing", async (t) => {
 test("Beachpatrol E2E Refuses Duplicate Instance", async (t) => {
   console.log(">>> Starting beachpatrol server for test...");
   const profile = testProfile("dup");
+  isolateDataHome(t);
   const { waitForReady, readStdout } = startServer(["--profile", profile], t);
   await waitForReady;
 
@@ -401,6 +415,7 @@ test("Beachpatrol E2E Refuses Duplicate Instance", async (t) => {
 
 test("Beachpatrol E2E beachmsg Missing Server", async (t) => {
   const profile = testProfile("noserver");
+  isolateDataHome(t);
   const result = await exec(
     `node "${BEACHMSG_PATH}" --browser ${browser} --profile ${profile} smoke-test`,
   ).catch((err) => err);
@@ -420,6 +435,7 @@ test("Beachpatrol E2E beachmsg Missing Server", async (t) => {
 });
 
 test("Beachpatrol E2E beachmsg Unknown Command", async (t) => {
+  isolateDataHome(t);
   const result = await exec(
     `node "${BEACHMSG_PATH}" --browser ${browser} --profile ${testProfile("nope")} ayy`,
   ).catch((err) => err);
@@ -437,7 +453,7 @@ test("Beachpatrol E2E beachmsg Unknown Command", async (t) => {
   console.log("   unknown command OK.");
 });
 
-test("Beachpatrol E2E beachmsg No Command", async (t) => {
+test("Beachpatrol E2E beachmsg No Command", async (_) => {
   const invocations = ["", "--profile foo"];
 
   for (const args of invocations) {
@@ -462,26 +478,113 @@ test("Beachpatrol E2E beachmsg No Command", async (t) => {
   console.log("   no command OK.");
 });
 
-test("Beachpatrol E2E beachmsg --list", async (t) => {
-  // Use a dedicated XDG_DATA_HOME so the listing only ever sees the instances
-  // this test starts.
-  const dataHome = fs.mkdtempSync(path.join(os.tmpdir(), "bp-"));
-  const oldDataHome = process.env.XDG_DATA_HOME;
-  process.env.XDG_DATA_HOME = dataHome;
+test("Beachpatrol E2E User Command Shadows Bundled", async (t) => {
+  console.log(">>> Starting beachpatrol server for shadow test...");
+  const profile = testProfile("shadow");
+  const dataHome = isolateDataHome(t);
+  const { waitForReady } = startServer(["--profile", profile], t);
+  await waitForReady;
+
+  // A user command named like a bundled one must win resolution.
+  const COMMANDS_DIR = userCommandsDir(dataHome);
+  fs.mkdirSync(COMMANDS_DIR, { recursive: true });
+  const shadowPath = path.join(COMMANDS_DIR, "smoke-test.js");
+  fs.writeFileSync(shadowPath, 'export default async () => "shadowed-by-user";\n');
   t.after(() => {
-    if (oldDataHome === undefined) {
-      delete process.env.XDG_DATA_HOME;
-    } else {
-      process.env.XDG_DATA_HOME = oldDataHome;
-    }
-    fs.rmSync(dataHome, { recursive: true, force: true, maxRetries: 100, retryDelay: 200 });
+    fs.rmSync(shadowPath, { force: true });
   });
-  const env = { ...process.env, XDG_DATA_HOME: dataHome };
+
+  console.log("   Running beachmsg smoke-test (shadowed)...");
+  const clientResult = await exec(
+    `node "${BEACHMSG_PATH}" --browser ${browser} --profile ${profile} smoke-test`,
+  );
+
+  assert.ok(
+    clientResult.stdout.includes("shadowed-by-user"),
+    "the user command should shadow the bundled one",
+  );
+  assert.ok(
+    !clientResult.stdout.includes(SMOKE_TEST_RESULT),
+    "the bundled smoke-test must not run when shadowed",
+  );
+  console.log("   shadowing OK.");
+});
+
+test("Beachpatrol E2E User Command with Installed Dependency", async (t) => {
+  console.log(">>> Starting beachpatrol server for dependency test...");
+  const profile = testProfile("dep");
+  const dataHome = isolateDataHome(t);
+
+  // The user commands dir is an npm package that depends on a test helper
+  // dependency. `npm pack` builds it offline into a tarball, then `npm install`
+  // extracts it into node_modules as a real package directory. 
+  // The command imports it, proving dependency resolution works from the command.
+  const COMMANDS_DIR = userCommandsDir(dataHome);
+  fs.mkdirSync(COMMANDS_DIR, { recursive: true });
+  const helperPkgDir = path.join(dataHome, "throwaway-helpers");
+  fs.mkdirSync(helperPkgDir, { recursive: true });
+  fs.writeFileSync(
+    path.join(helperPkgDir, "package.json"),
+    '{"name": "throwaway-helpers", "version": "1.0.0", ' +
+      '"type": "module", "main": "index.js"}\n',
+  );
+  fs.writeFileSync(
+    path.join(helperPkgDir, "index.js"),
+    'export const decorate = (s) => `deptest:${s}`;\n',
+  );
+  await exec("npm pack --silent", { cwd: helperPkgDir });
+  const helperTarball = path.join(helperPkgDir, "throwaway-helpers-1.0.0.tgz");
+  fs.writeFileSync(
+    path.join(COMMANDS_DIR, "package.json"),
+    JSON.stringify({
+      name: "user-commands-dir",
+      private: true,
+      type: "module",
+      dependencies: { "throwaway-helpers": `file:${helperTarball}` },
+    }),
+  );
+  await exec(
+    "npm install --no-audit --no-fund --ignore-scripts --loglevel=error",
+    { cwd: COMMANDS_DIR, timeout: 30_000 },
+  );
+
+  // Now implement the actual command usind the dependency
+  const depCommandPath = path.join(COMMANDS_DIR, "dep-test.js");
+  fs.writeFileSync(
+    depCommandPath,
+    'import { decorate } from "throwaway-helpers";\n' +
+      'export default async () => decorate("ok");\n',
+  );
+  t.after(() => {
+    fs.rmSync(depCommandPath, { force: true });
+  });
+
+  const { waitForReady } = startServer(["--profile", profile], t);
+  await waitForReady;
+
+  console.log("   Running beachmsg dep-test...");
+  const clientResult = await exec(
+    `node "${BEACHMSG_PATH}" --browser ${browser} --profile ${profile} dep-test`,
+  );
+
+  assert.strictEqual(
+    clientResult.stdout,
+    "deptest:ok\n",
+    "the command should import and use its installed dependency.",
+  );
+  assert.strictEqual(
+    clientResult.stderr,
+    "",
+    "beachmsg stderr should be empty for a successful command.",
+  );
+  console.log("   dependency resolution OK.");
+});
+
+test("Beachpatrol E2E beachmsg --list", async (t) => {
+  const dataHome = isolateDataHome(t);
 
   // With an empty registry, --list reports no instances and still exits 0.
-  // Checked before any server is started, because on Windows discovery
-  // enumerates global named pipes: any running instance would be listed.
-  const emptyResult = await exec(`node "${BEACHMSG_PATH}" --list`, { env });
+  const emptyResult = await exec(`node "${BEACHMSG_PATH}" --list`);
   assert.ok(
     emptyResult.stdout.includes("No instances running."),
     "empty --list should report no instances",
@@ -489,7 +592,7 @@ test("Beachpatrol E2E beachmsg --list", async (t) => {
   console.log("   empty --list OK.");
 
   // Local fixture page with a stable title, so the listing has something to show.
-  const httpServer = createServer((req, res) => {
+  const httpServer = createServer((_, res) => {
     res.writeHead(200, { "Content-Type": "text/html" });
     res.end("<title>list-tabs-fixture</title>");
   });
@@ -497,8 +600,9 @@ test("Beachpatrol E2E beachmsg --list", async (t) => {
   t.after(() => httpServer.close());
   const fixtureUrl = `http://127.0.0.1:${httpServer.address().port}/`;
 
-  // Throwaway command: open the fixture in a tab.
-  const COMMANDS_DIR = path.resolve(projectRoot, "..", "commands");
+  // Throwaway command.
+  const COMMANDS_DIR = userCommandsDir(dataHome);
+  fs.mkdirSync(COMMANDS_DIR, { recursive: true });
   const openCommandPath = path.join(COMMANDS_DIR, "list-open-test.js");
   fs.writeFileSync(
     openCommandPath,
@@ -523,14 +627,12 @@ test("Beachpatrol E2E beachmsg --list", async (t) => {
   console.log("   Opening a fixture tab in instance A...");
   await exec(
     `node "${BEACHMSG_PATH}" --browser ${browser} --profile ${profileA} list-open-test ${fixtureUrl}`,
-    { env },
   );
 
   // --list must compose both instances, ignoring any route flags present.
   console.log("   Running beachmsg --list...");
   const result = await exec(
     `node "${BEACHMSG_PATH}" --browser ${browser} --profile nonsensical --list`,
-    { env },
   );
 
   const instanceAHdr = `BROWSER: ${browser}, PROFILE: ${profileA}`;
