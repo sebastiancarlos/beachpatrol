@@ -447,7 +447,7 @@ test("Beachpatrol E2E beachmsg Unknown Command", async (t) => {
     "beachmsg stdout should be empty for an unknown command",
   );
   assert.ok(
-    result.stderr.includes("Error: Command script ayy.js does not exist."),
+    result.stderr.includes("Error: Command script ayy does not exist."),
     "stderr should report the unknown command",
   );
   console.log("   unknown command OK.");
@@ -508,6 +508,49 @@ test("Beachpatrol E2E User Command Shadows Bundled", async (t) => {
     "the bundled smoke-test must not run when shadowed",
   );
   console.log("   shadowing OK.");
+});
+
+test("Beachpatrol E2E User Command in TypeScript", async (t) => {
+  // Native type stripping (Node >=22.18.0) is what makes .ts commands run.
+  const [major, minor] = process.versions.node.split(".").map(Number);
+  if (major < 22 || (major === 22 && minor < 18)) {
+    t.skip("native TS type stripping needs Node >=22.18.0");
+    return;
+  }
+
+  console.log(">>> Starting beachpatrol server for TypeScript test...");
+  const profile = testProfile("ts");
+  const dataHome = isolateDataHome(t);
+  const { waitForReady } = startServer(["--profile", profile], t);
+  await waitForReady;
+
+  const COMMANDS_DIR = userCommandsDir(dataHome);
+  fs.mkdirSync(COMMANDS_DIR, { recursive: true });
+  const tsCommandPath = path.join(COMMANDS_DIR, "ts-test.ts");
+  fs.writeFileSync(
+    tsCommandPath,
+    'export default async (): Promise<string> => "ts-works";\n',
+  );
+  t.after(() => {
+    fs.rmSync(tsCommandPath, { force: true });
+  });
+
+  console.log("   Running beachmsg ts-test...");
+  const clientResult = await exec(
+    `node "${BEACHMSG_PATH}" --browser ${browser} --profile ${profile} ts-test`,
+  );
+
+  assert.strictEqual(
+    clientResult.stdout,
+    "ts-works\n",
+    "a .ts command should run via native type stripping.",
+  );
+  assert.strictEqual(
+    clientResult.stderr,
+    "",
+    "beachmsg stderr should be empty for a successful .ts command.",
+  );
+  console.log("   TypeScript command OK.");
 });
 
 test("Beachpatrol E2E User Command with Installed Dependency", async (t) => {
