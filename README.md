@@ -212,6 +212,7 @@ ROUTE FLAGS:
 
 Options:
   --list                    List all running instances and their open tabs.
+  --commands                List all available commands.
   --help                    Show this help message.
   --version                 Show version.
 ```

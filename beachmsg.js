@@ -94,6 +94,7 @@ ROUTE FLAGS:
 
 Options:
   --list                    List all running instances and their open tabs.
+  --commands                List all available commands.
   --help                    Show this help message.
   --version                 Show version.
 `.trimStart());
@@ -178,6 +179,29 @@ if (process.argv.includes("--list")) {
     }
     console.log();
   }
+  process.exit(0);
+}
+
+// if --commands, list all available commands, then exit.
+// Route flags are ignored.
+if (process.argv.includes("--commands")) {
+  const commands = [
+    ...new Set(
+      [USER_COMMANDS_DIR, PROJECT_COMMANDS_DIR].flatMap((dir) => {
+        try {
+          return fs
+            .readdirSync(dir)
+            .flatMap((file) => {
+              const match = file.match(/^(.*)\.(js|ts)$/);
+              return match ? [match[1]] : [];
+            });
+        } catch {
+          return [];
+        }
+      }),
+    ),
+  ].sort();
+  console.log(commands.length ? commands.join("\n") : "No commands available.");
   process.exit(0);
 }
 

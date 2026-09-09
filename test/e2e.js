@@ -695,3 +695,36 @@ test("Beachpatrol E2E beachmsg --list", async (t) => {
   );
   console.log("   --list OK.");
 });
+
+test("Beachpatrol E2E beachmsg --commands", async (t) => {
+  const dataHome = isolateDataHome(t);
+
+  const bundledResult = await exec(`node "${BEACHMSG_PATH}" --commands`);
+  const bundledLines = bundledResult.stdout.trim().split("\n");
+  assert.ok(bundledLines.includes("list-tabs"), "list-tabs should be listed");
+  assert.ok(bundledLines.includes("smoke-test"), "smoke-test should be listed");
+  console.log("   bundled commands OK.");
+
+  const COMMANDS_DIR = userCommandsDir(dataHome);
+  fs.mkdirSync(COMMANDS_DIR, { recursive: true });
+  fs.writeFileSync(path.join(COMMANDS_DIR, "zzz.js"), "export default () => {};\n");
+  fs.writeFileSync(path.join(COMMANDS_DIR, "aaa.ts"), "export default () => {};\n");
+  fs.writeFileSync(path.join(COMMANDS_DIR, "smoke-test.js"), "export default () => {};\n");
+  fs.writeFileSync(path.join(COMMANDS_DIR, "not-a-command.txt"), "");
+  t.after(() => {
+    fs.rmSync(COMMANDS_DIR, { recursive: true, force: true });
+  });
+
+  const result = await exec(`node "${BEACHMSG_PATH}" --commands`);
+  const lines = result.stdout.trim().split("\n");
+  assert.ok(lines.includes("aaa"), "user .ts command should be listed");
+  assert.ok(lines.includes("zzz"), "user command should be listed");
+  assert.deepEqual(
+    lines.filter((line) => line === "smoke-test"),
+    ["smoke-test"],
+    "user command should shadow the bundled one (listed once)",
+  );
+  assert.ok(!lines.includes("not-a-command"), "non-.js/.ts files should be ignored");
+  assert.deepEqual(lines, [...lines].sort(), "commands should be sorted");
+  console.log("   --commands OK.");
+});
