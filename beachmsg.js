@@ -210,12 +210,13 @@ if (!commandName) {
 }
 
 // Check if command script exists.
-const commandFiles = [
-  path.join(USER_COMMANDS_DIR, `${commandName}.js`),
-  path.join(PROJECT_COMMANDS_DIR, `${commandName}.js`),
-];
+const commandFiles = [USER_COMMANDS_DIR, PROJECT_COMMANDS_DIR].flatMap((dir) =>
+  [".js", ".ts"].map((extension) =>
+    path.join(dir, `${commandName}${extension}`),
+  ),
+);
 if (!commandFiles.some(fs.existsSync)) {
-  console.error(`Error: Command script ${commandName}.js does not exist.`);
+  console.error(`Error: Command script ${commandName} does not exist.`);
   process.exit(1);
 }
 

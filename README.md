@@ -102,8 +102,8 @@ Common setups for using the user commands home:
   particularly allows you to have commands which live in their own independent
   folders, with their own dependencies.
 
-Suppose you want to automate web search. Create `search.js` in your commands
-home with the following content:
+Suppose you want to automate web search. Create `search.js` (or `.ts`) in your
+commands home with the following content:
 
 ```javascript
 export default async ({ context, activePage }, ...searchTerms) => {

@@ -198,14 +198,19 @@ const server = createServer((socket) => {
 
     // Resolve the command script: user commands (in the XDG data dir) shadow
     // bundled ones.
-    const userCommandFile = path.join(USER_COMMANDS_DIR, `${commandName}.js`);
-    const commandFilePath = fs.existsSync(userCommandFile)
-      ? userCommandFile
-      : path.join(PROJECT_COMMANDS_DIR, `${commandName}.js`);
+    const commandCandidates = [USER_COMMANDS_DIR, PROJECT_COMMANDS_DIR].flatMap(
+      (dir) =>
+        [".js", ".ts"].map((extension) =>
+          path.join(dir, `${commandName}${extension}`),
+        ),
+    );
+    const commandFilePath = commandCandidates.find((candidate) =>
+      fs.existsSync(candidate),
+    );
 
     // Check if command script exists.
-    if (!fs.existsSync(commandFilePath)) {
-      writeError(`Command script ${commandName}.js does not exist.`);
+    if (!commandFilePath) {
+      writeError(`Command script ${commandName} does not exist.`);
     } else {
       // Import and run the command
       try {
