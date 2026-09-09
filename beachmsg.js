@@ -12,9 +12,12 @@ const PROJECT_ROOT = path.dirname(fileURLToPath(import.meta.url));
 
 const ERROR_SENTINEL = "BEACHPATROL_ERROR:";
 
-const DATA_DIR =
+const DATA_HOME =
   process.env.XDG_DATA_HOME || path.join(HOME_DIR, ".local/share");
-const SOCKET_DIR = `${DATA_DIR}/beachpatrol`;
+const DATA_DIR = `${DATA_HOME}/beachpatrol`;
+const SOCKET_DIR = DATA_DIR;
+const USER_COMMANDS_DIR = `${DATA_DIR}/commands`;
+const PROJECT_COMMANDS_DIR = `${PROJECT_ROOT}/commands`;
 const isWindows = process.platform === "win32";
 
 // Endpoint for an instance, given its socket name (`<browser>-<profile>[-incognito]`).
@@ -80,7 +83,8 @@ if (process.argv.includes("--help") || process.argv.includes("-h")) {
 Usage: beachmsg [ROUTE FLAGS] <command> [args...]
 
 - Sends a command to the beachpatrol server controlling the browser.
-- The provided command must exist in the "commands" directory of beachpatrol.
+- Commands live in the user commands home ($XDG_DATA_HOME/beachpatrol/commands/)
+  or the bundled "commands" directory of beachpatrol.
 
 ROUTE FLAGS:
   --browser <name>          Target browser. Default: chromium
@@ -205,14 +209,12 @@ if (!commandName) {
   process.exit(1);
 }
 
-// Check if command script exists
-const COMMANDS_DIR = "commands";
-const commandFilePath = path.join(
-  PROJECT_ROOT,
-  COMMANDS_DIR,
-  `${commandName}.js`,
-);
-if (!fs.existsSync(commandFilePath)) {
+// Check if command script exists.
+const commandFiles = [
+  path.join(USER_COMMANDS_DIR, `${commandName}.js`),
+  path.join(PROJECT_COMMANDS_DIR, `${commandName}.js`),
+];
+if (!commandFiles.some(fs.existsSync)) {
   console.error(`Error: Command script ${commandName}.js does not exist.`);
   process.exit(1);
 }

@@ -22,10 +22,12 @@ You can use it as your daily driver; it works like a regular browser.
 Use also `beachpatrol --profile <profile-name>` to launch a specific profile,
 or `beachpatrol --incognito`.
 
-To automate it, create a custom Playwright script in the `beachpatrol/commands`
-folder. Then, run `beachmsg <script-name> [<argument>...]`, and it will run it.
-You can use the Playwright API to work on the currently focused tab, move to an
-existing tab, open a new one, or use a headless tab instead.
+To automate it, create a custom Playwright script in
+(`$XDG_DATA_HOME/beachpatrol/commands/`, default
+`~/.local/share/beachpatrol/commands/`). Then, run `beachmsg <script-name>
+[<argument>...]`, and it will run it. You can use the Playwright API to work
+on the currently focused tab, move to an existing tab, open a new one, or use
+a headless tab instead.
 
 If you don't want to go back and forth to the CLI to automate your browser, you can
 install the `beachpatrol-browser-extension`. Its UI allows you to select a
@@ -83,8 +85,25 @@ situations (such as pagination and dropdowns), and will support hotkeys:
 
 ### Writing Your First Command
 
-Suppose you want to automate web search. You can create a `commands/search.js`
-file (relative to the cloned repo directory) with the following content:
+Beachpatrol resolves commands from two places, in this order:
+
+1. The user commands home (**recommended**): `$XDG_DATA_HOME/beachpatrol/commands/`
+2. The bundled `commands` directory of the beachpatrol installation.
+
+Common setups for using the user commands home:
+
+- **Plain.** Add a `package.json` with `"type": "module"`, and `npm
+  install` whatever your commands need.
+- **Keep your commands in a repo elsewhere.** Make the commands home a symlink
+  to your repository root, and every `.js` file there becomes a command.
+  Dependencies are resolved from your repo's own `node_modules`.
+- **Symlink individual files.** `ln -s ~/path/to/my-command.js
+  ~/.local/share/beachpatrol/commands/` for each command you want. This
+  particularly allows you to have commands which live in their own independent
+  folders, with their own dependencies.
+
+Suppose you want to automate web search. Create `search.js` in your commands
+home with the following content:
 
 ```javascript
 export default async ({ context, activePage }, ...searchTerms) => {
@@ -95,8 +114,8 @@ export default async ({ context, activePage }, ...searchTerms) => {
 };
 ```
 
-Every Beachpatrol command must export a default async function, which is the
-entry point of your command.
+Every Beachpatrol command must export a default async function (or generator,
+for streaming), which is the entry point of your command.
 
 The function should take:
 - An object containing `{ context, activePage }` as its first argument, where:
@@ -182,7 +201,8 @@ Options:
 Usage: beachmsg [ROUTE FLAGS] <command> [args...]
 
 - Sends a command to the beachpatrol server controlling the browser.
-- The provided command must exist in the "commands" directory of beachpatrol.
+- Commands live in the user commands home (`$XDG_DATA_HOME/beachpatrol/commands/`)
+  or the bundled "commands" directory of beachpatrol.
 
 ROUTE FLAGS:
   --browser <name>          Target browser. Default: chromium

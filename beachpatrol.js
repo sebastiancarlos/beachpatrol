@@ -145,11 +145,14 @@ if (incognito) {
   }
 }
 
-const DATA_DIR =
+const DATA_HOME =
   process.env.XDG_DATA_HOME || path.join(HOME_DIR, ".local/share");
-const SOCKET_DIR = `${DATA_DIR}/beachpatrol`;
+const DATA_DIR = `${DATA_HOME}/beachpatrol`;
+const SOCKET_DIR = DATA_DIR;
 const SOCKET_NAME = `${browser}-${profileName}${incognito ? "-incognito" : ""}`;
 const SOCKET_PATH = `${SOCKET_DIR}/${SOCKET_NAME}.sock`;
+const USER_COMMANDS_DIR = `${DATA_DIR}/commands`;
+const PROJECT_COMMANDS_DIR = `${PROJECT_ROOT}/commands`;
 const WINDOWS_NAMED_PIPE = String.raw`\\.\pipe\beachpatrol-${SOCKET_NAME}`;
 const usingUnixDomainSocket = process.platform !== "win32";
 
@@ -191,13 +194,14 @@ const server = createServer((socket) => {
     }
 
     // identify and log command
-    const COMMANDS_DIR = "commands";
-    const commandFilePath = path.join(
-      PROJECT_ROOT,
-      COMMANDS_DIR,
-      `${commandName}.js`,
-    );
     console.log(`Received command: ${commandName} ${args.join(" ")}`);
+
+    // Resolve the command script: user commands (in the XDG data dir) shadow
+    // bundled ones.
+    const userCommandFile = path.join(USER_COMMANDS_DIR, `${commandName}.js`);
+    const commandFilePath = fs.existsSync(userCommandFile)
+      ? userCommandFile
+      : path.join(PROJECT_COMMANDS_DIR, `${commandName}.js`);
 
     // Check if command script exists.
     if (!fs.existsSync(commandFilePath)) {
@@ -241,6 +245,10 @@ const endpoint = usingUnixDomainSocket ? SOCKET_PATH : WINDOWS_NAMED_PIPE;
 if (usingUnixDomainSocket) {
   fs.mkdirSync(SOCKET_DIR, { recursive: true });
 }
+
+// Create user commands dir, if it doesn't exist already
+fs.mkdirSync(USER_COMMANDS_DIR, { recursive: true });
+
 server.on("error", (err) => {
   // EADDRINUSE on Unix sockets; EEXIST on Windows named pipes
   if (err.code === "EADDRINUSE" || err.code === "EEXIST") {
