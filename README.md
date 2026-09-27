@@ -40,6 +40,10 @@ situations (such as pagination and dropdowns), and will support hotkeys:
 
 ### What can you automate with Beachpatrol? The sky is the limit:
 
+- Automate your job search end to end
+  ([SHOBR](https://github.com/sebastiancarlos/shobr) does exactly this: a
+  Python CLI that discovers, enriches, screens, writes PDFs, and tracks job
+  applications through its own `beachpatrol` commands).
 - Check your email.
 - Check your bank transactions.
 - Download a file from a website.
