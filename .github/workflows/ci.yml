@@ -9,6 +9,9 @@ on:
   # Allow manual triggering from the Actions tab
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   build-and-test:
     name: Test ${{ matrix.os }}/${{ matrix.browser }}
