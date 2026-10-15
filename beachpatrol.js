@@ -2,7 +2,8 @@
 
 import fs from "fs";
 import os from "os";
-import { createServer } from "net";
+import { once } from "events";
+import { connect, createServer } from "net";
 import path from "path";
 import { fileURLToPath, pathToFileURL } from "url";
 
@@ -244,35 +245,51 @@ const server = createServer((socket) => {
   });
 });
 
-// Claim the socket before launching the browser. If the bind fails, another
-// instance owns this profile slot.
+// Find out if a socket file is definitely dead.
+//
+// On Unix, a file left by an unclean exit still exists but typically
+// refuses connects (ECONNREFUSED) or is gone (ENOENT). In any other case,
+// we assume that a listener is still there.
+const isEndpointDead = async (target) => {
+  const probe = connect(target);
+  try {
+    await once(probe, "connect");
+    return false;
+  } catch (err) {
+    return err.code === "ECONNREFUSED" || err.code === "ENOENT";
+  } finally {
+    probe.destroy();
+  }
+};
+
+// Claim the socket before launching the browser. Clear any stale file first.
 const endpoint = usingUnixDomainSocket ? SOCKET_PATH : WINDOWS_NAMED_PIPE;
 if (usingUnixDomainSocket) {
   fs.mkdirSync(SOCKET_DIR, { recursive: true });
+  if (fs.existsSync(SOCKET_PATH) && (await isEndpointDead(SOCKET_PATH))) {
+    console.warn(`Warning: removing stale socket ${SOCKET_PATH}.`);
+    fs.rmSync(SOCKET_PATH, { force: true });
+  }
 }
 
 // Create user commands dir, if it doesn't exist already
 fs.mkdirSync(USER_COMMANDS_DIR, { recursive: true });
 
-server.on("error", (err) => {
-  // EADDRINUSE on Unix sockets; EEXIST on Windows named pipes
+// Start server
+try {
+  const listening = once(server, "listening");
+  server.listen(endpoint);
+  await listening;
+} catch (err) {
   if (err.code === "EADDRINUSE" || err.code === "EEXIST") {
-    console.error(
-      `Error: beachpatrol is already running for ${SOCKET_NAME}.`,
-    );
+    console.error(`Error: beachpatrol is already running for ${SOCKET_NAME}.`);
     process.exit(1);
   }
   throw err;
-});
-
-// Start serer
-await new Promise((resolve) => {
-  server.once("listening", resolve);
-  server.listen(endpoint);
-});
+}
 
 let cleanupDone = false;
-const cleanup = async () => {
+const cleanup = async (exitCode = 0) => {
   if (cleanupDone) return;
   cleanupDone = true;
   console.log("Cleaning up and shutting down...");
@@ -285,20 +302,25 @@ const cleanup = async () => {
     console.log("  - Server closed");
   }
   await browserContext?.close();
-  process.exit(0);
+  process.exit(exitCode);
 };
 
-// Launch browser with specified profile and args
-if (incognito) {
-  const browser = await browserCommand.launch(launchOptions);
-  browserContext = await browser.newContext();
-  // the 'launch' method does not open a page by default, so we need to open one
-  await browserContext.newPage();
-} else {
-  browserContext = await browserCommand.launchPersistentContext(
-    profileDir,
-    launchOptions,
-  );
+// Launch browser with specified profile and args.
+try {
+  if (incognito) {
+    const browser = await browserCommand.launch(launchOptions);
+    browserContext = await browser.newContext();
+    // the 'launch' method does not open a page by default, so we need to open one
+    await browserContext.newPage();
+  } else {
+    browserContext = await browserCommand.launchPersistentContext(
+      profileDir,
+      launchOptions,
+    );
+  }
+} catch (error) {
+  console.error(`Error: failed to launch browser: ${error.message}`);
+  await cleanup(1);
 }
 
 // cleanup on browser close
