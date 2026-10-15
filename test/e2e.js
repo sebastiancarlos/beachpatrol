@@ -113,6 +113,7 @@ function startServer(args, t) {
   beachpatrolProcess.stderr.on("data", (data) => {
     serverStderr.push(data.toString());
   });
+  const readStderr = () => serverStderr.join("");
 
   // wait for expected output, or timeout, or unexpected exit
   let clearTimeoutId;
@@ -142,7 +143,7 @@ function startServer(args, t) {
     })(),
   ]).finally(() => clearTimeout(clearTimeoutId));
 
-  return { beachpatrolProcess, waitForReady, readStdout, downloadDir };
+  return { beachpatrolProcess, waitForReady, readStdout, readStderr, downloadDir };
 }
 
 test("Beachpatrol E2E Smoke Test", async (t) => {
@@ -411,6 +412,70 @@ test("Beachpatrol E2E Refuses Duplicate Instance", async (t) => {
     readStdout().includes("Received command: smoke-test"),
     "original instance should still receive commands",
   );
+});
+
+test("Beachpatrol E2E Reclaims Stale Socket", async (t) => {
+  if (process.platform === "win32") {
+    t.skip("stale-socket reclaim is Unix-only (Windows pipes vanish on exit)");
+    return;
+  }
+
+  const profile = testProfile("stale");
+  const dataHome = isolateDataHome(t);
+  const socketPath = path.join(
+    dataHome,
+    "beachpatrol",
+    `${browser}-${profile}.sock`,
+  );
+  fs.mkdirSync(path.dirname(socketPath), { recursive: true });
+
+  // Simulate a crashed instance: bind the exact slot, then SIGKILL so no
+  // cleanup runs and the socket file is orphaned (as after a crash or SIGKILL).
+  console.log(">>> Orphaning a socket file to mimic a crash...");
+  const squatter = spawn(
+    "node",
+    [
+      "-e",
+      [
+        'const net = require("net");',
+        "const s = net.createServer(() => {});",
+        `s.listen(${JSON.stringify(socketPath)}, () => process.stdout.write("up\\n"));`,
+      ].join("\n"),
+    ],
+    { stdio: ["ignore", "pipe", "inherit"] },
+  );
+  t.after(() => squatter.kill("SIGKILL"));
+  await once(squatter.stdout, "data");
+  squatter.kill("SIGKILL");
+  await once(squatter, "exit");
+  assert.ok(
+    fs.existsSync(socketPath),
+    "SIGKILL should leave the socket file behind",
+  );
+
+  // A fresh instance on the dead slot must reclaim the file and come up,
+  // instead of refusing with "already running".
+  console.log(">>> Starting a fresh instance on the stale slot...");
+  const server = startServer(["--profile", profile], t);
+  await server.waitForReady;
+  assert.ok(
+    server.readStderr().includes("removing stale socket"),
+    "the fresh instance should report reclaiming the stale socket",
+  );
+  assert.ok(
+    !server.readStdout().includes("already running"),
+    "the fresh instance should not refuse a stale socket",
+  );
+
+  // And it must actually serve commands.
+  await exec(
+    `node "${BEACHMSG_PATH}" --browser ${browser} --profile ${profile} smoke-test`,
+  );
+  assert.ok(
+    server.readStdout().includes("Received command: smoke-test"),
+    "the reclaimed instance should serve commands",
+  );
+  console.log("   stale socket reclaim OK.");
 });
 
 test("Beachpatrol E2E beachmsg Missing Server", async (t) => {
